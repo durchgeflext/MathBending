@@ -9,8 +9,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Header-only module: random
 # =======================
 add_library(lib_random INTERFACE)
+add_library(lib_util INTERFACE)
 
 target_include_directories(lib_random
+                           INTERFACE
+                           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+                           $<INSTALL_INTERFACE:include>
+)
+target_include_directories(lib_util
                            INTERFACE
                            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
                            $<INSTALL_INTERFACE:include>
@@ -18,6 +24,7 @@ target_include_directories(lib_random
 
 
 target_compile_features(lib_random INTERFACE cxx_std_23)
+target_compile_features(lib_util INTERFACE cxx_std_23)
 
 
 # =======================
@@ -33,7 +40,7 @@ install(
 
 # Install interface targets
 install(
-        TARGETS lib_random
+        TARGETS lib_random lib_util
         EXPORT MathBendingTargets
 )
 

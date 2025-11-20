@@ -5,7 +5,7 @@
 
 namespace MathBending {
 
-    template<U_INT_TYPE uint>
+    template<U_INT_TYPE uint = uint32_t>
     //https://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/ARTICLES/sfmt.pdf
     class SIMDFastMersenneTwister {
         uint seed;
