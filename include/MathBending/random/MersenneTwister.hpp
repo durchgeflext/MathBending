@@ -1,32 +1,24 @@
 #pragma once
 #include <cstdint>
 
+#include "MathBending/concepts/ScalarTypes.hpp"
+
 namespace MathBending {
 
-    class MersenneTwister32 {
-        uint32_t seed;
+    template<U_INT_TYPE uint>
+    //https://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/ARTICLES/sfmt.pdf
+    class SIMDFastMersenneTwister {
+        uint seed;
 
         public:
-        explicit MersenneTwister32(const uint32_t seed) : seed(seed) {
 
-        }
+        SIMDFastMersenneTwister() : seed(0) {}
 
-        uint32_t operator() () {
-            return 0;
-        }
-    };
+        explicit SIMDFastMersenneTwister(uint seed) : seed(seed) {}
 
-    class MersenneTwister64 {
-        uint64_t seed;
+        uint operator()() {
 
-        public:
-        explicit MersenneTwister64(const uint64_t seed) : seed(seed) {
-
-        }
-
-        uint64_t operator()() {
-
-            return 0ull;
+            return static_cast<uint>(0);
         }
 
     };
