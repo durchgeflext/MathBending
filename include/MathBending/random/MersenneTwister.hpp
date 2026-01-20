@@ -12,7 +12,7 @@ namespace MathBending {
         uint seed;
 
         static constexpr uint128_t linA(const uint128_t word) {
-            return (word << static_cast<uint128_t>(8)) + word;
+            return (word << 8) ^ word;
         }
 
         static constexpr uint128_t linB(const uint128_t word) {
@@ -34,7 +34,7 @@ namespace MathBending {
         }
 
         static constexpr uint128_t linC(const uint128_t word) {
-            return word >> static_cast<uint128_t>(8);
+            return word >> 8;
         }
 
         static constexpr uint128_t linD(const uint128_t word) {
@@ -44,7 +44,7 @@ namespace MathBending {
             const uint32_t midLo = p[2] << 18;
             const uint32_t lo = p[3] << 18;
 
-            uint128_t result = 0;
+            uint128_t result{0};
             auto *r = reinterpret_cast<uint32_t *>(&result);
             r[0] = hi;
             r[1] = midHi;
