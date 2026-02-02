@@ -1,4 +1,5 @@
 #pragma once
+#include <compare>
 #include <cstdint>
 
 struct Integer128 {
@@ -16,54 +17,82 @@ struct Integer128 {
         lo = static_cast<uint64_t>(value);
     }
 
+    explicit Integer128(const int64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+
     //Shift operators
 
-    constexpr Integer128 operator << (const uint64_t right) const {
+    constexpr Integer128 operator << (const uint64_t shift) const {
         Integer128 tmp{};
-        const uint64_t loMask = ~(~uint64_t{0} >> right); //Highest 'right' bits are 1, the rest is 0
-        const uint64_t carry = (lo & loMask) >> (64 - right);
+        const uint64_t loMask = ~(~uint64_t{0} >> shift); //Highest 'shift' bits are 1, the rest is 0
+        const uint64_t carry = (lo & loMask) >> (64 - shift);
 
-        tmp.hi = hi << right;
+        tmp.hi = hi << shift;
         tmp.hi |= static_cast<int64_t>(carry);
 
-        tmp.lo = lo << right;
+        tmp.lo = lo << shift;
         return tmp;
     }
 
-    constexpr Integer128 operator >> (const uint64_t right) const {
+    constexpr Integer128 operator >> (const uint64_t shift) const {
         Integer128 tmp{};
-        const uint64_t hiMask = (uint64_t{0} << (right + 1)) - 1; //Lowest 'right' bits are 1, the rest is 0
-        const uint64_t carry = (hi & hiMask) << (64 - right);
+        const uint64_t hiMask = (uint64_t{1} << shift) - 1; //Lowest 'shift' bits are 1, the rest is 0
+        const uint64_t carry = (hi & hiMask) << (64 - shift);
 
-        tmp.lo = lo >> right;
+        tmp.lo = lo >> shift;
         tmp.lo |= carry;
 
-        tmp.hi = hi >> right;
+        tmp.hi = hi >> shift;
         return tmp;
     }
 
     // Logic operators
 
     constexpr Integer128 operator & (const Integer128& other) const {
-
+        return Integer128{hi & other.hi, lo & other.lo};
     }
 
     constexpr Integer128 operator | (const Integer128& other) const {
-
+        return Integer128{hi | other.hi, lo | other.lo};
     }
 
     constexpr Integer128 operator ^ (const Integer128& other) const {
-
+        return Integer128{hi ^ other.hi, lo ^ other.lo};
     }
 
     constexpr Integer128 operator ~ () const {
-
+        return Integer128{~hi, ~lo};
     }
+
 
     // Comparison operator
 
-    constexpr Integer128 operator <=> (const Integer128& other) const {
+    constexpr bool operator == (const Integer128& other) const {
+        if (hi != other.hi) return false;
+        return lo == other.lo;
+    }
 
+    constexpr bool operator != (const Integer128& other) const {
+        return !operator==(other);
+    }
+
+    constexpr bool operator < (const Integer128& other) const {
+        if (hi < other.hi) return true;
+        if (hi > other.hi) return false;
+        return lo < other.lo;
+    }
+
+    constexpr bool operator > (const Integer128& other) const {
+        if (hi > other.hi) return true;
+        if (hi < other.hi) return false;
+        return lo > other.lo;
+    }
+
+    constexpr bool operator <= (const Integer128& other) const {
+        return (*this < other) || (*this == other);
+    }
+
+    constexpr bool operator >= (const Integer128& other) const {
+        return (*this > other) || (*this == other);
     }
 
 
@@ -85,14 +114,28 @@ struct Integer128 {
 
     }
 
-    constexpr Integer128 operator ++ () const {
-
+    constexpr Integer128& operator ++ () {
+        if (++lo == 0) ++hi;
+        return *this;
     }
 
-    constexpr Integer128 operator -- () const {
-
+    constexpr Integer128 operator ++ (int) {
+        const Integer128 tmp = *this;
+        ++*this;
+        return tmp;
     }
 
+
+    constexpr Integer128& operator -- () {
+        if (lo-- == 0) --hi;
+        return *this;
+    }
+
+    constexpr Integer128 operator -- (int) {
+        const Integer128 tmp = *this;
+        --*this;
+        return tmp;
+    }
 };
 
 struct UnsignedInteger128 {
@@ -110,52 +153,81 @@ struct UnsignedInteger128 {
         lo = value;
     }
 
-    constexpr UnsignedInteger128 operator << (const uint64_t right) const {
-        UnsignedInteger128 tmp{};
-        const uint64_t loMask = ~(~uint64_t{0} >> right); //Highest 'right' bits are 1, the rest is 0
-        const uint64_t carry = (lo & loMask) >> (64 - right);
+    explicit UnsignedInteger128(const uint64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
 
-        tmp.hi = hi << right;
+    constexpr UnsignedInteger128 operator << (const uint64_t shift) const {
+        UnsignedInteger128 tmp{};
+        const uint64_t loMask = ~(~uint64_t{0} >> shift); //Highest 'shift' bits are 1, the rest is 0
+        const uint64_t carry = (lo & loMask) >> (64 - shift);
+
+        tmp.hi = hi << shift;
         tmp.hi |= carry;
 
-        tmp.lo = lo << right;
+        tmp.lo = lo << shift;
         return tmp;
     }
 
-    constexpr UnsignedInteger128 operator >> (const uint64_t right) const {
+    constexpr UnsignedInteger128 operator >> (const uint64_t shift) const {
         UnsignedInteger128 tmp{};
-        const uint64_t hiMask = (uint64_t{0} << (right + 1)) - 1; //Lowest 'right' bits are 1, the rest is 0
-        const uint64_t carry = (hi & hiMask) << (64 - right);
+        const uint64_t hiMask = (uint64_t{1} << shift) - 1; //Lowest 'shift' bits are 1, the rest is 0
+        const uint64_t carry = (hi & hiMask) << (64 - shift);
 
-        tmp.lo = lo >> right;
+        tmp.lo = lo >> shift;
         tmp.lo |= carry;
 
-        tmp.hi = hi >> right;
+        tmp.hi = hi >> shift;
         return tmp;
     }
+
 
     // Logic operators
 
     constexpr UnsignedInteger128 operator & (const UnsignedInteger128& other) const {
-
+        return UnsignedInteger128{hi & other.hi, lo & other.lo};
     }
 
     constexpr UnsignedInteger128 operator | (const UnsignedInteger128& other) const {
-
+        return UnsignedInteger128{hi | other.hi, lo | other.lo};
     }
 
     constexpr UnsignedInteger128 operator ^ (const UnsignedInteger128& other) const {
-
+        return UnsignedInteger128{hi ^ other.hi, lo ^ other.lo};
     }
 
     constexpr UnsignedInteger128 operator ~ () const {
-
+        return UnsignedInteger128{~hi, ~lo};
     }
+
 
     // Comparison operator
 
-    constexpr UnsignedInteger128 operator <=> (const UnsignedInteger128& other) const {
+    constexpr bool operator == (const UnsignedInteger128& other) const {
+        if (hi != other.hi) return false;
+        return lo == other.lo;
+    }
 
+    constexpr bool operator != (const UnsignedInteger128& other) const {
+        return !operator==(other);
+    }
+
+    constexpr bool operator < (const UnsignedInteger128& other) const {
+        if (hi < other.hi) return true;
+        if (hi > other.hi) return true;
+        return lo < other.lo;
+    }
+
+    constexpr bool operator > (const UnsignedInteger128& other) const {
+        if (hi > other.hi) return true;
+        if (hi < other.hi) return false;
+        return lo > other.lo;
+    }
+
+    constexpr bool operator <= (const UnsignedInteger128& other) const {
+        return (*this < other) || (*this == other);
+    }
+
+    constexpr bool operator >= (const UnsignedInteger128& other) const {
+        return (*this > other) || (*this == other);
     }
 
 
@@ -177,14 +249,28 @@ struct UnsignedInteger128 {
 
     }
 
-    constexpr UnsignedInteger128 operator ++ () const {
-
+    constexpr UnsignedInteger128& operator ++ () {
+        if (++lo == 0) ++hi;
+        return *this;
     }
 
-    constexpr UnsignedInteger128 operator -- () const {
-
+    constexpr UnsignedInteger128 operator ++ (int) {
+        const UnsignedInteger128 tmp = *this;
+        ++*this;
+        return tmp;
     }
 
+
+    constexpr UnsignedInteger128& operator -- () {
+        if (lo-- == 0) --hi;
+        return *this;
+    }
+
+    constexpr UnsignedInteger128 operator -- (int) {
+        const UnsignedInteger128 tmp = *this;
+        --*this;
+        return tmp;
+    }
 };
 
 
