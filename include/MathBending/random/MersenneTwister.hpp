@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "MathBending/concepts/ScalarTypes.hpp"
+#include "MathBending/util/CircularArray.hpp"
 
 namespace MathBending {
 
@@ -11,18 +12,14 @@ namespace MathBending {
     class SIMDFastMersenneTwister {
         static constexpr size_t N = 156; //upper(19937 / 128)
 
-        static constexpr size_t stateSize() {
-            return sizeof(uint128_t) / sizeof(uint) * N;
-        }
-
         //https://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine.html
         static constexpr uint32_t INIT_MUL_32 = 1812433253;
 
-        uint seed;
+        static constexpr size_t POS_1 = 122;
 
-        //TODO: Circular Array
-        uint state[stateSize()];
-
+        static constexpr size_t stateSize() {
+            return sizeof(uint128_t) / sizeof(uint) * N;
+        }
 
         static constexpr size_t idxof(uint idx) {
             return idx % stateSize();
@@ -71,23 +68,27 @@ namespace MathBending {
             return result;
         }
 
+        CircularArray<uint, stateSize()> state;
+        size_t current = 0;
+        uint seed;
+
         void init_state() {
-            uint *state;
+            uint *tmp_state;
             size_t start = 0;
             if (sizeof(uint) <= sizeof(uint32_t)) {
                 for (size_t i = 0; i < sizeof(uint32_t) / sizeof(uint); i++) {
                     this->state[i] = seed;
                 }
-                state = static_cast<uint32_t *>(this->state);
+                tmp_state = static_cast<uint32_t *>(this->state);
                 start = 1;
             } else {
                 this->state[0] = seed;
-                state = static_cast<uint32_t*>(this->state);
+                tmp_state = static_cast<uint32_t*>(this->state);
                 start = sizeof(uint128_t) / sizeof(uint);
             }
 
             for (; start < stateSize(); start++) {
-                state[idxof(start)] = INIT_MUL_32 * (state[idxof(start - 1)] ^ state[idxof(start- 1)] >> 30) + start;
+                tmp_state[start] = INIT_MUL_32 * (tmp_state[start - 1] ^ tmp_state[start - 1] >> 30) + start;
             }
         }
 
@@ -102,8 +103,21 @@ namespace MathBending {
         }
 
         uint operator()() {
-            //TODO: Implement!
-            return static_cast<uint>(0);
+            if (current % (sizeof(uint128_t) / sizeof(uint)) == 0) {
+                //Update
+                const uint128_t a = linA(*static_cast<uint128_t*>(state.data(current)));
+                const uint128_t b = linB(*static_cast<uint128_t*>(state.data(current + POS_1)));
+                const uint128_t c = linC(*static_cast<uint128_t*>(state.data(current + stateSize() - 2)));
+                const uint128_t d = linD(*static_cast<uint128_t*>(state.data(current + stateSize() - 1)));
+                *static_cast<uint128_t*>(state.data(current)) = a + b + c + d;
+            }
+            uint tmp = state[current];
+            current = state.next(current);
+            return tmp;
+        }
+
+        uint getSeed() const {
+            return seed;
         }
 
     };
