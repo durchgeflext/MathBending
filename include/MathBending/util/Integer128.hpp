@@ -2,6 +2,7 @@
 #include <compare>
 #include <cstdint>
 
+#ifndef __SIZEOF_INT128__
 struct Integer128 {
     private:
     int64_t hi;
@@ -272,6 +273,7 @@ struct UnsignedInteger128 {
         return tmp;
     }
 };
+#endif
 
 
 #ifdef __SIZEOF_INT128__

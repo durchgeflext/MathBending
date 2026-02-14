@@ -21,10 +21,6 @@ namespace MathBending {
             return sizeof(uint128_t) / sizeof(uint) * N;
         }
 
-        static constexpr size_t idxof(uint idx) {
-            return idx % stateSize();
-        }
-
         //TODO: Check Endianess for consistency
         static constexpr uint128_t linA(const uint128_t word) {
             return (word << 8) ^ word;
@@ -73,17 +69,15 @@ namespace MathBending {
         uint seed;
 
         void init_state() {
-            uint *tmp_state;
+            uint *tmp_state = this->state.data();
             size_t start = 0;
             if (sizeof(uint) <= sizeof(uint32_t)) {
                 for (size_t i = 0; i < sizeof(uint32_t) / sizeof(uint); i++) {
                     this->state[i] = seed;
                 }
-                tmp_state = static_cast<uint32_t *>(this->state);
                 start = 1;
             } else {
                 this->state[0] = seed;
-                tmp_state = static_cast<uint32_t*>(this->state);
                 start = sizeof(uint128_t) / sizeof(uint);
             }
 
@@ -105,11 +99,11 @@ namespace MathBending {
         uint operator()() {
             if (current % (sizeof(uint128_t) / sizeof(uint)) == 0) {
                 //Update
-                const uint128_t a = linA(*static_cast<uint128_t*>(state.data(current)));
-                const uint128_t b = linB(*static_cast<uint128_t*>(state.data(current + POS_1)));
-                const uint128_t c = linC(*static_cast<uint128_t*>(state.data(current + stateSize() - 2)));
-                const uint128_t d = linD(*static_cast<uint128_t*>(state.data(current + stateSize() - 1)));
-                *static_cast<uint128_t*>(state.data(current)) = a + b + c + d;
+                const uint128_t a = linA(*static_cast<uint128_t*>(static_cast<void*>(state.data(current))));
+                const uint128_t b = linB(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + POS_1))));
+                const uint128_t c = linC(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + stateSize() - 2))));
+                const uint128_t d = linD(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + stateSize() - 1))));
+                *static_cast<uint128_t*>(static_cast<void*>(state.data(current))) = a + b + c + d;
             }
             uint tmp = state[current];
             current = state.next(current);

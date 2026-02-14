@@ -8,11 +8,11 @@ struct CircularArray {
 
     public:
 
-    T *data() const {
+    T *data() {
         return content;
     }
 
-    T *data(const size_t idx) const {
+    T *data(const size_t idx) {
         return &content[idx % Cap];
     }
 
