@@ -100,11 +100,34 @@ struct Integer128 {
     // Arithmetic Operators
 
     constexpr Integer128 operator + (const Integer128& other) const {
-
+        Integer128 res{0};
+        const uint64_t lowSum = this->lo + other.lo;
+        int64_t carry;
+        if constexpr(lowSum < this->lo) {
+            res.lo = 0;
+            carry = lowSum + 1;
+        } else {
+            res.lo = lowSum;
+            carry = 0;
+        }
+        res.hi = this->hi + other.hi + carry;
+        return res;
     }
 
     constexpr Integer128 operator - (const Integer128& other) const {
-
+        Integer128 res{0};
+        uint64_t carry;
+        if constexpr (other.hi > this->hi) {
+            res.hi = 0;
+            carry = other.hi - this->hi;
+        } else {
+            res.hi = this->hi - other.hi;
+            carry = 0;
+        }
+        //If other > this, this line will cause an Integer Overflow
+        //As a signed integer underflow is UB in the standard, I do not care
+        res.lo = this->lo - other.lo - carry;
+        return res;
     }
 
     constexpr Integer128 operator * (const Integer128& other) const {
@@ -235,7 +258,18 @@ struct UnsignedInteger128 {
     // Arithmetic Operators
 
     constexpr UnsignedInteger128 operator + (const UnsignedInteger128& other) const {
-
+        UnsignedInteger128 res{0};
+        const uint64_t lowSum = this->lo + other.lo;
+        uint64_t carry;
+        if constexpr(lowSum < this->lo) {
+            res.lo = 0;
+            carry = lowSum + 1;
+        } else {
+            res.lo = lowSum;
+            carry = 0;
+        }
+        res.hi = this->hi + other.hi + carry;
+        return res;
     }
 
     constexpr UnsignedInteger128 operator - (const UnsignedInteger128& other) const {
