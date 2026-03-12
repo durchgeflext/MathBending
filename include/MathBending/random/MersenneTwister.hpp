@@ -14,6 +14,7 @@ namespace MathBending {
 
         //https://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine.html
         static constexpr uint32_t INIT_MUL_32 = 1812433253;
+        static constexpr uint64_t INIT_MUL_64 = 6364136223846793005;
 
         static constexpr size_t POS_1 = 122;
 
@@ -64,26 +65,40 @@ namespace MathBending {
             return result;
         }
 
-        CircularArray<uint, stateSize()> state;
+        CircularArray<uint128_t, stateSize()> state;
         size_t current = 0;
         uint seed;
 
         void init_state() {
-            uint *tmp_state = this->state.data();
-            size_t start = 0;
-            if (sizeof(uint) <= sizeof(uint32_t)) {
-                for (size_t i = 0; i < sizeof(uint32_t) / sizeof(uint); i++) {
-                    this->state[i] = seed;
+            uint32_t init32 = seed;
+            uint64_t init64 = seed;
+            uint128_t init128 = seed;
+
+            // Fill first 32 bits if necessary
+            if constexpr (sizeof(uint) < sizeof(uint32_t)) {
+                uint32_t last = seed;
+                for (size_t i = 1; i < sizeof(uint32_t) / sizeof(uint); i++) {
+                    last = static_cast<uint>(INIT_MUL_32) * (last ^ last >> (sizeof(uint) * 8 - 2)) + 1;
+                    init32 |= last << (sizeof(uint) * 8);
                 }
-                start = 1;
-            } else {
-                this->state[0] = seed;
-                start = sizeof(uint128_t) / sizeof(uint);
             }
 
-            for (; start < stateSize(); start++) {
-                tmp_state[start] = INIT_MUL_32 * (tmp_state[start - 1] ^ tmp_state[start - 1] >> 30) + start;
+            // Fill first 64bit if necessary
+            if constexpr (sizeof(uint) < sizeof(uint64_t)) {
+                init64 = static_cast<uint64_t>(INIT_MUL_32 * (init32 ^ init32 >> 30) + 1) << 32 | init32;
             }
+
+            // Fill first 128bit if necessary
+            if constexpr (sizeof(uint) < sizeof(uint128_t)) {
+                init128 = static_cast<uint128_t>(INIT_MUL_64 * (init64 ^ init64 >> 62) + 1) << 64 | init64;
+            }
+            this->state[0] = init128;
+
+            //Fill other values
+            for (size_t i = 1; i < N; i++) {
+                state[i] = INIT_MUL_64 * (state[i -1] ^ state[i - 1] >> 126) + i;
+            }
+
         }
 
         public:
