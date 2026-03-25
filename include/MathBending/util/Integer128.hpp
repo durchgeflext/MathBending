@@ -1,6 +1,9 @@
 #pragma once
-#include <compare>
+
 #include <cstdint>
+
+#include "MathBending/concepts/ScalarTypes.hpp"
+#include "MathBending/random/MersenneTwister.hpp"
 
 #ifndef __SIZEOF_INT128__
 struct Integer128 {
@@ -317,4 +320,3 @@ using uint128_t = __uint128_t;
 using int128_t = Integer128;
 using uint128_t = UnsignedInteger128;
 #endif
-
