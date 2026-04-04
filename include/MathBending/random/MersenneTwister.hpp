@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "MathBending/concepts/ScalarTypes.hpp"
+#include "MathBending/functions/BitShifts.hpp"
 #include "MathBending/util/CircularArray.hpp"
 
 namespace MathBending {
@@ -28,20 +29,8 @@ namespace MathBending {
         }
 
         static constexpr uint128_t linB(const uint128_t word) {
-            const auto *p = reinterpret_cast<const uint32_t *>(&word);
-            const uint32_t hi = (p[0] >> 11) & 0xBFFFFFF6;
-            const uint32_t midHi = (p[1] >> 11) & 0xBFFAFFFF;
-            const uint32_t midLo = (p[2] >> 11) & 0xDDFECB7F;
-            const uint32_t lo = (p[3] >> 11) & 0xDFFFFFEF;
-
-            uint128_t result;
-            auto *r = reinterpret_cast<uint32_t *>(&result);
-
-            r[0] = hi;
-            r[1] = midHi;
-            r[2] = midLo;
-            r[3] = lo;
-
+            auto result = sgmnt_bit_shift_r<uint128_t, uint32_t>(word, 11);
+            result &= static_cast<uint128_t>(0xBFFFFFF6'BFFAFFFF) << 64 | static_cast<uint128_t>(0xDDFECB7F'DFFFFFEF);
             return result;
         }
 
@@ -50,19 +39,7 @@ namespace MathBending {
         }
 
         static constexpr uint128_t linD(const uint128_t word) {
-            const auto *p = reinterpret_cast<const uint32_t *>(&word);
-            const uint32_t hi = p[0] << 18;
-            const uint32_t midHi = p[1] << 18;
-            const uint32_t midLo = p[2] << 18;
-            const uint32_t lo = p[3] << 18;
-
-            uint128_t result = 0;
-            auto *r = reinterpret_cast<uint32_t *>(&result);
-            r[0] = hi;
-            r[1] = midHi;
-            r[2] = midLo;
-            r[3] = lo;
-            return result;
+            return sgmnt_bit_shift_l<uint128_t, uint32_t>(word, 18);
         }
 
         CircularArray<uint128_t, stateSize()> state;
