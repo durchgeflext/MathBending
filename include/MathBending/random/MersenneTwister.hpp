@@ -42,7 +42,7 @@ namespace MathBending {
             return sgmnt_bit_shift_l<uint128_t, uint32_t>(word, 18);
         }
 
-        CircularArray<uint128_t, stateSize()> state;
+        CircularArray<uint, stateSize()> state;
         size_t current = 0;
         uint seed;
 
@@ -69,11 +69,12 @@ namespace MathBending {
             if constexpr (sizeof(uint) < sizeof(uint128_t)) {
                 init128 = static_cast<uint128_t>(INIT_MUL_64 * (init64 ^ init64 >> 62) + 1) << 64 | init64;
             }
-            this->state[0] = init128;
+            auto *state128 = reinterpret_cast<uint128_t*>(state.data());
+            state128[0] = init128;
 
             //Fill other values
             for (size_t i = 1; i < N; i++) {
-                state[i] = INIT_MUL_64 * (state[i -1] ^ state[i - 1] >> 126) + i;
+                state128[i] = INIT_MUL_64 * (state128[i -1] ^ state128[i - 1] >> 126) + i;
             }
 
         }
