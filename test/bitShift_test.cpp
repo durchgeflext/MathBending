@@ -103,3 +103,45 @@ TEST_CASE("Left Segment shifting will shift out bits at each segment border", "[
         REQUIRE(sgmnt_bit_shift_l<uint128_t, uint128_t>(left128, 1) == (uint128_t(0x0101'0101'0101'0101) << 64 | 0x0101'0101'0101'0100));
     }
 }
+
+TEST_CASE("Right Segment shifting will shift out bits at each segment border", "[Segment Bit Shift_l segments]") {
+    constexpr uint8_t right8 = 0x01;
+    constexpr uint16_t right16 = static_cast<uint16_t>(right8) << 8 | right8;
+    constexpr uint32_t right32 = static_cast<uint32_t>(right16) << 16 | right16;
+    constexpr uint64_t right64 = static_cast<uint64_t>(right32) << 32 | right32;
+    constexpr uint128_t right128 = static_cast<uint128_t>(right64) << 64 | right64;
+
+    SECTION("Right Segment Shifting 8 bit segments") {
+        REQUIRE(sgmnt_bit_shift_r<uint8_t, uint8_t>(right8, 1) == 0);
+        REQUIRE(sgmnt_bit_shift_r<uint16_t, uint8_t>(right16, 1) == 0);
+        REQUIRE(sgmnt_bit_shift_r<uint32_t, uint8_t>(right32, 1) == 0);
+        REQUIRE(sgmnt_bit_shift_r<uint64_t, uint8_t>(right64, 1) == 0);
+        REQUIRE(sgmnt_bit_shift_r<uint128_t, uint8_t>(right128, 1) == 0);
+    }
+
+    SECTION("Right Segment Shifting 16 bit segments") {
+        REQUIRE(sgmnt_bit_shift_r<uint16_t, uint16_t>(right16, 1) == 0x0080);
+        REQUIRE(sgmnt_bit_shift_r<uint32_t, uint16_t>(right32, 1) == 0x0080'0080);
+        REQUIRE(sgmnt_bit_shift_r<uint64_t, uint16_t>(right64, 1) == 0x0080'0080'0080'0080);
+        //TODO: Make it work on windows
+        REQUIRE(sgmnt_bit_shift_r<uint128_t, uint16_t>(right128, 1) == (uint128_t(0x0080'0080'0080'0080) << 64 | 0x0080'0080'0080'0080));
+    }
+
+    SECTION("Right Segment Shifting 32 bit segments") {
+        REQUIRE(sgmnt_bit_shift_r<uint32_t, uint32_t>(right32, 1) == 0x0080'8080);
+        REQUIRE(sgmnt_bit_shift_r<uint64_t, uint32_t>(right64, 1) == 0x0080'8080'0080'8080);
+        //TODO: Make it work on windows
+        REQUIRE(sgmnt_bit_shift_r<uint128_t, uint32_t>(right128, 1) == (uint128_t(0x0080'8080'0080'8080) << 64 | 0x0080'8080'0080'8080));
+    }
+
+    SECTION("Right Segment Shifting 64 bit segment") {
+        REQUIRE(sgmnt_bit_shift_r<uint64_t, uint64_t>(right64, 1) == 0x0080'8080'8080'8080);
+        //TODO: Make it work on windows
+        REQUIRE(sgmnt_bit_shift_r<uint128_t, uint64_t>(right128, 1) == (uint128_t(0x0080'8080'8080'8080) << 64 | 0x0080'8080'8080'8080));
+    }
+
+    SECTION("Right Segment Shifting 128 bit segment") {
+        //TODO: Make it work on windows
+        REQUIRE(sgmnt_bit_shift_r<uint128_t, uint128_t>(right128, 1) == (uint128_t(0x0080'8080'8080'8080) << 64 | 0x8080'8080'8080'8080));
+    }
+}
