@@ -273,7 +273,7 @@ struct UnsignedInteger128 {
 
     constexpr bool operator < (const UnsignedInteger128& other) const {
         if (hi < other.hi) return true;
-        if (hi > other.hi) return true;
+        if (hi > other.hi) return false;
         return lo < other.lo;
     }
 
