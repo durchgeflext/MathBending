@@ -58,6 +58,23 @@ option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_BENCHMARKS "Build benchmarks" OFF)
 
 if (BUILD_TESTS)
+  # =======================
+  # Code Coverage Support
+  # =======================
+  option(ENABLE_COVERAGE "Enable code coverage" ON)
+
+  if(ENABLE_COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      add_compile_options(--coverage -O0 -g)
+      add_link_options(--coverage)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+      add_compile_options(/PROFILE)
+      add_link_options(/PROFILE)
+      message(STATUS "Code coverage enabled for MSVC with /PROFILE flag")
+    else()
+      message(WARNING "Code coverage is only supported for GCC, Clang, and MSVC")
+    endif()
+  endif()
   include(FetchContent)
   FetchContent_Declare(
           Catch2
