@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#ifndef __SIZEOF_INT128__
+#ifdef __SIZEOF_INT128__
 struct Integer128 {
     private:
     int64_t hi;
@@ -19,6 +19,12 @@ struct Integer128 {
     }
 
     explicit Integer128(const int64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+
+
+    // Copy assignment operator
+
+    constexpr Integer128& operator = (const Integer128& other) = default;
+
 
     //Shift operators
 
@@ -101,41 +107,64 @@ struct Integer128 {
 
     constexpr Integer128 operator + (const Integer128& other) const {
         Integer128 res{0};
-        const uint64_t lowSum = this->lo + other.lo;
-        int64_t carry;
-        if constexpr(lowSum < this->lo) {
-            res.lo = 0;
-            carry = lowSum + 1;
-        } else {
-            res.lo = lowSum;
-            carry = 0;
-        }
-        res.hi = this->hi + other.hi + carry;
+        res.lo = this->lo + other.lo;
+        const uint64_t carry = (res.lo < this->lo) ? 1 : 0;
+        res.hi = this->hi + other.hi + static_cast<int64_t>(carry);
         return res;
     }
 
     constexpr Integer128 operator - (const Integer128& other) const {
         Integer128 res{0};
-        uint64_t carry;
-        if constexpr (other.hi > this->hi) {
-            res.hi = 0;
-            carry = other.hi - this->hi;
-        } else {
-            res.hi = this->hi - other.hi;
-            carry = 0;
-        }
-        //If other > this, this line will cause an Integer Overflow
-        //As a signed integer underflow is UB in the standard, I do not care
-        res.lo = this->lo - other.lo - carry;
+        const uint64_t borrow = (this->lo < other.lo) ? 1 : 0;
+        res.lo = this->lo - other.lo;
+        res.hi = this->hi - other.hi - static_cast<int64_t>(borrow);
         return res;
     }
 
     constexpr Integer128 operator * (const Integer128& other) const {
-
+        // Really slow fallback implementation
+        Integer128 res{0};
+        for (uint64_t i = 0; i < 64; ++i) {
+            if ((other.lo & (uint64_t{1} << i)) != 0) {
+                res = res + (*this << i);
+            }
+            if ((other.hi & (uint64_t{1} << i)) != 0) {
+                res = res + (*this << (i + 64));
+            }
+        }
+        return res;
     }
 
     constexpr Integer128 operator / (const Integer128& other) const {
+        // Really slow fallback implementation
+        const Integer128 dividend = *this;
+        const Integer128 divisor = other;
+        Integer128 quotient{0};
+        Integer128 remainder{0};
+        for (int i = 127; i >= 0; --i) {
+            remainder = (remainder << 1) | Integer128{(dividend >> i) & Integer128{1}};
+            if (remainder >= divisor) {
+                remainder = remainder - divisor;
+                quotient = quotient | (Integer128{1} << i);
+            }
+        }
+        return quotient;
+    }
 
+    constexpr Integer128 operator % (const Integer128& other) const {
+        // Really slow fallback implementation
+        const Integer128 dividend = *this;
+        const Integer128 divisor = other;
+        Integer128 quotient{0};
+        Integer128 remainder{0};
+        for (int i = 127; i >= 0; --i) {
+            remainder = (remainder << 1) | Integer128{(dividend >> i) & Integer128{1}};
+            if (remainder >= divisor) {
+                remainder = remainder - divisor;
+                quotient = quotient | (Integer128{1} << i);
+            }
+        }
+        return remainder;
     }
 
     constexpr Integer128& operator ++ () {
@@ -178,6 +207,14 @@ struct UnsignedInteger128 {
     }
 
     explicit UnsignedInteger128(const uint64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+
+
+    // Copy assignment operator
+
+    constexpr UnsignedInteger128& operator = (const UnsignedInteger128& other) = default;
+
+
+    // Shift operators
 
     constexpr UnsignedInteger128 operator << (const uint64_t shift) const {
         UnsignedInteger128 tmp{};
@@ -259,29 +296,65 @@ struct UnsignedInteger128 {
 
     constexpr UnsignedInteger128 operator + (const UnsignedInteger128& other) const {
         UnsignedInteger128 res{0};
-        const uint64_t lowSum = this->lo + other.lo;
-        uint64_t carry;
-        if constexpr(lowSum < this->lo) {
-            res.lo = 0;
-            carry = lowSum + 1;
-        } else {
-            res.lo = lowSum;
-            carry = 0;
-        }
+        res.lo = this->lo + other.lo;
+        const uint64_t carry = (res.lo < this->lo) ? 1 : 0;
         res.hi = this->hi + other.hi + carry;
         return res;
     }
 
     constexpr UnsignedInteger128 operator - (const UnsignedInteger128& other) const {
-
+        UnsignedInteger128 res{0};
+        const uint64_t borrow = (this->lo < other.lo) ? 1 : 0;
+        res.lo = this->lo - other.lo;
+        res.hi = this->hi - other.hi - static_cast<int64_t>(borrow);
+        return res;
     }
 
     constexpr UnsignedInteger128 operator * (const UnsignedInteger128& other) const {
 
+        //Really slow fallback implementation
+        UnsignedInteger128 res{0};
+        for (uint64_t i = 0; i < 64; ++i) {
+            if ((other.lo & (uint64_t{1} << i)) != 0) {
+                res = res + (*this << i);
+            }
+            if ((other.hi & (uint64_t{1} << i)) != 0) {
+                res = res + (*this << (i + 64));
+            }
+        }
+        return res;
     }
 
     constexpr UnsignedInteger128 operator / (const UnsignedInteger128& other) const {
+        // Really slow fallback implementation
+        const UnsignedInteger128 dividend = *this;
+        const UnsignedInteger128 divisor = other;
+        UnsignedInteger128 quotient{0};
+        UnsignedInteger128 remainder{0};
+        for (int i = 127; i >= 0; --i) {
+            remainder = (remainder << 1) | UnsignedInteger128{(dividend >> i) & UnsignedInteger128{1}};
+            if (remainder >= divisor) {
+                remainder = remainder - divisor;
+                quotient = quotient | (UnsignedInteger128{1} << i);
+            }
+        }
+        return quotient;
+    }
 
+    constexpr UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
+        // Really slow fallback implementation
+        const UnsignedInteger128 dividend = *this;
+        const UnsignedInteger128 divisor = other;
+        UnsignedInteger128 quotient{0};
+        UnsignedInteger128 remainder{0};
+        for (int i = 127; i >= 0; --i) {
+            remainder = (remainder << 1) | UnsignedInteger128{(dividend >> i) & UnsignedInteger128{1}};
+            if (remainder >= divisor) {
+                remainder = remainder - divisor;
+                quotient = quotient | (UnsignedInteger128{1} << i);
+            }
+        }
+        return remainder;
     }
 
     constexpr UnsignedInteger128& operator ++ () {
