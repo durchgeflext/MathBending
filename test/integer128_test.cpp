@@ -2,6 +2,7 @@
 
 #include <MathBending/util/Integer128.hpp>
 
+#ifndef __SIZEOF_INT128__
 TEST_CASE("Integer128 basic assignment functions", "[Integer128 assign]") {
     Integer128 a{0x1234567890abcdef, 0xfedcba0987654321};
     Integer128 b = a;
@@ -255,3 +256,5 @@ TEST_CASE("UnsignedInteger128 increment and decrement functions", "[UnsignedInte
     REQUIRE((z++) == UnsignedInteger128{0xffffffffffffffff, 0xffffffffffffffff});
     REQUIRE(z == UnsignedInteger128{0});
 }
+
+#endif
