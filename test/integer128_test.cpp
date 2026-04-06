@@ -78,6 +78,10 @@ TEST_CASE("Integer128 basic shift functions", "[Integer128 shift]") {
 
     const Integer128 b{static_cast<int64_t>(0xfedcba0987654321), 0x1234567890abcdef};
     REQUIRE((b >> 4) == Integer128{static_cast<int64_t>(0xffedcba098765432), 0x11234567890abcde});
+
+    REQUIRE((a << 68) == Integer128{static_cast<int64_t>(0xedcba09876543210), 0});
+    REQUIRE((a >> 68) == Integer128{0, 0x01234567890abcde});
+    REQUIRE((b >> 68) == Integer128{-1, 0xffedcba098765432});
 }
 
 TEST_CASE("UnsignedInteger128 basic shift functions", "[UnsignedInteger128 shift]") {
@@ -85,6 +89,9 @@ TEST_CASE("UnsignedInteger128 basic shift functions", "[UnsignedInteger128 shift
 
     REQUIRE((a << 4) == UnsignedInteger128{0x234567890abcdeff, 0xedcba09876543210});
     REQUIRE((a >> 4) == UnsignedInteger128{0x01234567890abcde, 0xffedcba098765432});
+
+    REQUIRE((a << 68) == UnsignedInteger128{0xedcba09876543210, 0});
+    REQUIRE((a >> 68) == UnsignedInteger128{0, 0x01234567890abcde});
 }
 
 TEST_CASE("Integer128 basic logic functions", "[Integer128 logic]") {
@@ -160,25 +167,91 @@ TEST_CASE("UnsignedInteger128 basic comparison functions", "[UnsignedInteger128 
 }
 
 TEST_CASE("Integer128 basic arithmetic functions", "[Integer128 arithmetic]") {
-    const Integer128 a{0x1234567890abcdef, 0xfedcba0987654321};
-    const Integer128 b{0x0f0f0f0f0f0f0f0f, 0xf0f0f0f0f0f0f0f0};
+    const Integer128 a{static_cast<int64_t>(0xffffffffffffffff), 0xfffffffffffffffe};
+    const Integer128 b{0x0000000000000000, 0x000000000000000a};
+    const Integer128 d{0x0000000000000000, 0x000000000000000f};
+    const Integer128 z{0};
 
-    //TODO: Make sure this is defined behaviour and it is actually correct
-    REQUIRE((a + b) == Integer128{0x213546798fafcfef, 0xfefcfaf9f7f5f3f1});
-    REQUIRE((a - b) == Integer128{0x01345678900abcde, 0x000cba0987654321});
-    REQUIRE((a * b) == Integer128{static_cast<int64_t>(-0x1e1e1e1e1e1e1e1e), 0x1e1e1e1e1e1e1e10});
-    REQUIRE((a / b) == Integer128{static_cast<int64_t>(-2), 2});
-    REQUIRE((a % b) == Integer128{static_cast<int64_t>(-2), 2});
+    REQUIRE((a + b) == Integer128{0x0000000000000000, 0x0000000000000008});
+    REQUIRE((a + z) == a);
+
+    REQUIRE((a - b) == Integer128{static_cast<int64_t>(0xffffffffffffffff), 0xfffffffffffffff4});
+    REQUIRE((a - z) == a);
+
+    REQUIRE((b * a) == Integer128{static_cast<int64_t>(0xffffffffffffffff), 0xffffffffffffffec});
+    REQUIRE((a * z) == Integer128{0});
+
+    REQUIRE((b / a) == Integer128{static_cast<int64_t>(0xffffffffffffffff), 0xfffffffffffffffb});
+    REQUIRE((a / b) == Integer128{0});
+
+    REQUIRE((a % b) == Integer128{-2});
+    REQUIRE((d % b) == Integer128{5});
+
 }
 
 TEST_CASE("UnsignedInteger128 basic arithmetic functions", "[UnsignedInteger128 arithmetic]") {
-    const UnsignedInteger128 a{0x1234567890abcdef, 0xfedcba0987654321};
-    const UnsignedInteger128 b{0x0f0f0f0f0f0f0f0f, 0xf0f0f0f0f0f0f0f0};
+    const UnsignedInteger128 a{0xffffffffffffffff, 0xfffffffffffffffe};
+    const UnsignedInteger128 b{0x0000000000000000, 0x000000000000000a};
+    const UnsignedInteger128 c{0x0000000000000000, 0x0000000000000002};
+    const UnsignedInteger128 d{0x0000000000000000, 0x000000000000000f};
+    const UnsignedInteger128 z{0};
 
-    //TODO: Repair this
-    REQUIRE((a + b) == UnsignedInteger128{0x213546798fafcfef, 0xfefcfaf9f7f5f3f1});
-    REQUIRE((a - b) == UnsignedInteger128{0x01345678900abcde, 0x000cba0987654321});
-    REQUIRE((a * b) == UnsignedInteger128{static_cast<uint64_t>(-0x1e1e1e1e1e1e1e1e), 0x1e1e1e1e1e1e1e10});
-    REQUIRE((a / b) == UnsignedInteger128{2});
-    REQUIRE((a % b) == UnsignedInteger128{2});
+    REQUIRE((b + c) == UnsignedInteger128{0x0000000000000000, 0x000000000000000c});
+    REQUIRE((b + z) == b);
+    REQUIRE((a + c) == UnsignedInteger128{0x0000000000000000, 0x0000000000000000});
+    REQUIRE((a + b) == UnsignedInteger128{0x0000000000000000, 0x0000000000000008});
+
+    REQUIRE((b - c) == UnsignedInteger128{0x0000000000000000, 0x0000000000000008});
+    REQUIRE((b - z) == b);
+    REQUIRE((c - a) == UnsignedInteger128{0x0000000000000000, 0x0000000000000004});
+
+    REQUIRE((b * c) == UnsignedInteger128{0x0000000000000000, 0x0000000000000014});
+    REQUIRE((b * z) == UnsignedInteger128{0});
+    REQUIRE((c * a) == UnsignedInteger128{0xffffffffffffffff, 0xfffffffffffffffc});
+    REQUIRE((a * b) == UnsignedInteger128{0xffffffffffffffff, 0xffffffffffffffec});
+
+    REQUIRE((b / c) == UnsignedInteger128{0x0000000000000000, 0x0000000000000005});
+    REQUIRE((b / a) == UnsignedInteger128{0});
+
+    REQUIRE((b % a) == b);
+    REQUIRE((d % b) == UnsignedInteger128{5});
+    //TODO: Increment/Decrement
+}
+
+TEST_CASE("Integer128 increment and decrement functions", "[Integer128 increment/decrement]") {
+    Integer128 a{0, 0xffffffffffffffff};
+    Integer128 z{0};
+
+    REQUIRE((++z) == Integer128{1});
+    REQUIRE(z == Integer128{1});
+    REQUIRE((z++) == Integer128{1});
+    REQUIRE(z == Integer128{2});
+
+    REQUIRE((--z) == Integer128{1});
+    REQUIRE(z == Integer128{1});
+    REQUIRE((z--) == Integer128{1});
+    REQUIRE(z == Integer128{0});
+    REQUIRE((--z) == Integer128{-1});
+    REQUIRE(z == Integer128{-1});
+
+    REQUIRE((++a) == Integer128{1, 0});
+    REQUIRE(a == Integer128{1, 0});
+}
+
+TEST_CASE("UnsignedInteger128 increment and decrement functions", "[UnsignedInteger128 increment/decrement]") {
+    UnsignedInteger128 z{0};
+
+    REQUIRE((++z) == UnsignedInteger128{1});
+    REQUIRE(z == UnsignedInteger128{1});
+    REQUIRE((z++) == UnsignedInteger128{1});
+    REQUIRE(z == UnsignedInteger128{2});
+
+    REQUIRE((--z) == UnsignedInteger128{1});
+    REQUIRE(z == UnsignedInteger128{1});
+    REQUIRE((z--) == UnsignedInteger128{1});
+    REQUIRE(z == UnsignedInteger128{0});
+    REQUIRE((--z) == UnsignedInteger128{0xffffffffffffffff, 0xffffffffffffffff});
+    REQUIRE(z == UnsignedInteger128{0xffffffffffffffff, 0xffffffffffffffff});
+    REQUIRE((z++) == UnsignedInteger128{0xffffffffffffffff, 0xffffffffffffffff});
+    REQUIRE(z == UnsignedInteger128{0});
 }

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#ifdef __SIZEOF_INT128__
+#ifndef __SIZEOF_INT128__
 struct Integer128 {
     private:
     int64_t hi;
@@ -30,6 +30,13 @@ struct Integer128 {
 
     constexpr Integer128 operator << (const uint64_t shift) const {
         Integer128 tmp{};
+
+        if (shift >= 64) {
+            tmp.hi = static_cast<int64_t>(lo << (shift - 64));
+            tmp.lo = 0;
+            return tmp;
+        }
+
         const uint64_t loMask = ~(~uint64_t{0} >> shift); //Highest 'shift' bits are 1, the rest is 0
         const uint64_t carry = (lo & loMask) >> (64 - shift);
 
@@ -42,6 +49,13 @@ struct Integer128 {
 
     constexpr Integer128 operator >> (const uint64_t shift) const {
         Integer128 tmp{};
+
+        if (shift >= 64) {
+            tmp.lo = hi >> (shift - 64);
+            tmp.hi = (hi < 0) ? int64_t{-1} : int64_t{0};
+            return tmp;
+        }
+
         const uint64_t hiMask = (uint64_t{1} << shift) - 1; //Lowest 'shift' bits are 1, the rest is 0
         const uint64_t carry = (hi & hiMask) << (64 - shift);
 
@@ -121,8 +135,12 @@ struct Integer128 {
         return res;
     }
 
+    constexpr Integer128 operator - () const {
+        return Integer128{~hi, ~lo} + Integer128{0, 1};
+    }
+
     constexpr Integer128 operator * (const Integer128& other) const {
-        // Really slow fallback implementation
+        // Fallback implementation
         Integer128 res{0};
         for (uint64_t i = 0; i < 64; ++i) {
             if ((other.lo & (uint64_t{1} << i)) != 0) {
@@ -136,9 +154,17 @@ struct Integer128 {
     }
 
     constexpr Integer128 operator / (const Integer128& other) const {
-        // Really slow fallback implementation
-        const Integer128 dividend = *this;
-        const Integer128 divisor = other;
+        // Fallback implementation
+
+        // result is negative if signs differ
+        const bool dividendNegative = hi < 0;
+        const bool divisorNegative = other.hi < 0;
+        const bool resultNegative = dividendNegative != divisorNegative;
+
+        // Work with absolute values
+        const Integer128 dividend = dividendNegative ? -*this : *this;
+        const Integer128 divisor = divisorNegative ? -other : other;
+
         Integer128 quotient{0};
         Integer128 remainder{0};
         for (int i = 127; i >= 0; --i) {
@@ -148,13 +174,21 @@ struct Integer128 {
                 quotient = quotient | (Integer128{1} << i);
             }
         }
-        return quotient;
+
+        return resultNegative ? -quotient : quotient;
     }
 
     constexpr Integer128 operator % (const Integer128& other) const {
-        // Really slow fallback implementation
-        const Integer128 dividend = *this;
-        const Integer128 divisor = other;
+        // Fallback implementation
+        // Result is negative if signs differ
+        const bool dividendNegative = hi < 0;
+        const bool divisorNegative = other.hi < 0;
+        const bool resultNegative = dividendNegative != divisorNegative;
+
+        // Work with absolute values
+        const Integer128 dividend = dividendNegative ? -*this : *this;
+        const Integer128 divisor = divisorNegative ? -other : other;
+
         Integer128 quotient{0};
         Integer128 remainder{0};
         for (int i = 127; i >= 0; --i) {
@@ -164,7 +198,8 @@ struct Integer128 {
                 quotient = quotient | (Integer128{1} << i);
             }
         }
-        return remainder;
+
+        return resultNegative ? -remainder : remainder;
     }
 
     constexpr Integer128& operator ++ () {
@@ -218,6 +253,13 @@ struct UnsignedInteger128 {
 
     constexpr UnsignedInteger128 operator << (const uint64_t shift) const {
         UnsignedInteger128 tmp{};
+
+        if (shift >= 64) {
+            tmp.hi = lo << (shift - 64);
+            tmp.lo = 0;
+            return tmp;
+        }
+
         const uint64_t loMask = ~(~uint64_t{0} >> shift); //Highest 'shift' bits are 1, the rest is 0
         const uint64_t carry = (lo & loMask) >> (64 - shift);
 
@@ -230,6 +272,13 @@ struct UnsignedInteger128 {
 
     constexpr UnsignedInteger128 operator >> (const uint64_t shift) const {
         UnsignedInteger128 tmp{};
+
+        if (shift >= 64) {
+            tmp.lo = hi >> (shift - 64);
+            tmp.hi = 0;
+            return tmp;
+        }
+
         const uint64_t hiMask = (uint64_t{1} << shift) - 1; //Lowest 'shift' bits are 1, the rest is 0
         const uint64_t carry = (hi & hiMask) << (64 - shift);
 
@@ -311,8 +360,7 @@ struct UnsignedInteger128 {
     }
 
     constexpr UnsignedInteger128 operator * (const UnsignedInteger128& other) const {
-
-        //Really slow fallback implementation
+        //Fallback implementation
         UnsignedInteger128 res{0};
         for (uint64_t i = 0; i < 64; ++i) {
             if ((other.lo & (uint64_t{1} << i)) != 0) {
@@ -326,7 +374,7 @@ struct UnsignedInteger128 {
     }
 
     constexpr UnsignedInteger128 operator / (const UnsignedInteger128& other) const {
-        // Really slow fallback implementation
+        // Fallback implementation
         const UnsignedInteger128 dividend = *this;
         const UnsignedInteger128 divisor = other;
         UnsignedInteger128 quotient{0};
@@ -342,7 +390,7 @@ struct UnsignedInteger128 {
     }
 
     constexpr UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
-        // Really slow fallback implementation
+        // Fallback implementation
         const UnsignedInteger128 dividend = *this;
         const UnsignedInteger128 divisor = other;
         UnsignedInteger128 quotient{0};
