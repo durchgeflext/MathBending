@@ -3,6 +3,12 @@
 #include <cstdint>
 
 #ifndef __SIZEOF_INT128__
+
+#if defined(_MSC_VER) && defined (_WIN64)
+#include <intrin.h>
+#pragma intrinsic(_umul128)
+#endif
+
 struct Integer128 {
     private:
     int64_t hi;
@@ -13,12 +19,12 @@ struct Integer128 {
     Integer128(const Integer128 &integer128) = default;
     Integer128(Integer128 &&integer128) = default;
 
-    explicit Integer128(const int64_t value) {
+    explicit constexpr Integer128(const int64_t value) {
         hi = (value < 0) ? int64_t{-1} : int64_t{0};
         lo = static_cast<uint64_t>(value);
     }
 
-    explicit Integer128(const int64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+    explicit constexpr Integer128(const int64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
 
 
     // Copy assignment operator
@@ -139,8 +145,22 @@ struct Integer128 {
         return Integer128{~hi, ~lo} + Integer128{0, 1};
     }
 
+#if defined(_MSC_VER) && defined(_WIN64)
+    Integer128 operator * (const Integer128& other) const {
+        Integer128 res{0};
+        uint64_t carry = 0;
+        const uint64_t lo_lo = _umul128(this->lo, other.lo, &carry);
+
+        const uint64_t tmphi1 = this->lo * static_cast<uint64_t>(other.hi);
+        const uint64_t tmphi2 = static_cast<uint64_t>(this->hi) * other.lo;
+
+        res.hi = static_cast<int64_t>(tmphi1 + tmphi2 + carry);
+        res.lo = lo_lo;
+        return res;
+    }
+
+#else        // Fallback implementation
     constexpr Integer128 operator * (const Integer128& other) const {
-        // Fallback implementation
         Integer128 res{0};
         for (uint64_t i = 0; i < 64; ++i) {
             if ((other.lo & (uint64_t{1} << i)) != 0) {
@@ -152,6 +172,7 @@ struct Integer128 {
         }
         return res;
     }
+#endif
 
     constexpr Integer128 operator / (const Integer128& other) const {
         // Fallback implementation
@@ -236,12 +257,12 @@ struct UnsignedInteger128 {
     UnsignedInteger128(const UnsignedInteger128 &integer128) = default;
     UnsignedInteger128(UnsignedInteger128 &&integer128) = default;
 
-    explicit UnsignedInteger128(const uint64_t value) {
+    explicit constexpr UnsignedInteger128(const uint64_t value) {
         hi = 0;
         lo = value;
     }
 
-    explicit UnsignedInteger128(const uint64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+    explicit constexpr UnsignedInteger128(const uint64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
 
 
     // Copy assignment operator
@@ -359,8 +380,19 @@ struct UnsignedInteger128 {
         return res;
     }
 
+#if defined(_MSC_VER) && defined(_WIN64)
+    UnsignedInteger128 operator * (const UnsignedInteger128& other) const {
+        UnsignedInteger128 res{0};
+        uint64_t carry = 0;
+        const uint64_t lo_lo = _umul128(this->lo, other.lo, &carry);
+
+        res.hi = carry + this->hi * other.lo + this->lo * other.hi;
+        res.lo = lo_lo;
+
+        return res;
+    }
+#else        //Fallback implementation
     constexpr UnsignedInteger128 operator * (const UnsignedInteger128& other) const {
-        //Fallback implementation
         UnsignedInteger128 res{0};
         for (uint64_t i = 0; i < 64; ++i) {
             if ((other.lo & (uint64_t{1} << i)) != 0) {
@@ -372,6 +404,8 @@ struct UnsignedInteger128 {
         }
         return res;
     }
+
+#endif
 
     constexpr UnsignedInteger128 operator / (const UnsignedInteger128& other) const {
         // Fallback implementation
