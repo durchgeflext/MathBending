@@ -159,7 +159,7 @@ struct Integer128 {
         return res;
     }
 
-#else        // Fallback implementation
+#else  // Fallback implementation
     constexpr Integer128 operator * (const Integer128& other) const {
         Integer128 res{0};
         for (uint64_t i = 0; i < 64; ++i) {
@@ -391,7 +391,7 @@ struct UnsignedInteger128 {
 
         return res;
     }
-#else        //Fallback implementation
+#else  //Fallback implementation
     constexpr UnsignedInteger128 operator * (const UnsignedInteger128& other) const {
         UnsignedInteger128 res{0};
         for (uint64_t i = 0; i < 64; ++i) {
@@ -407,6 +407,36 @@ struct UnsignedInteger128 {
 
 #endif
 
+#if defined(_MSC_VER) && defined(_WIN64)
+    UnsignedInteger128 operator / (const UnsignedInteger128& other) const {
+        UnsignedInteger128 res{0};
+        uint64_t remainder = 0;
+
+        unsigned long msbIDX;
+
+        if (!_BitScanReverse64(&msbIDX, other.hi)) {
+            remainder = this->hi % other.lo;
+            res.hi = this->hi / other.lo;
+            res.lo = _udiv128(remainder, this->lo, other.lo, &remainder);
+            return res;
+        }
+
+        const uint64_t shift = 64 - msbIDX;
+        const UnsignedInteger128 xHat = *this >> shift;
+        const uint64_t           yHat = (other >> shift).lo;
+        const uint64_t           qHat = _udiv128(xHat.hi, xHat.lo, yHat, &remainder);
+
+        res = UnsignedInteger128{qHat};
+        res = res << shift;
+
+        //Correction
+        while (true) { //Should have at most two iterations
+            if (res * other <= *this && (res + UnsignedInteger128{1}) * other > *this) return res;
+            if (res * other < *this) res = res + UnsignedInteger128{1};
+            if (res * other > *this) res = res - UnsignedInteger128{1};
+        }
+    }
+#else  //Fallback implementation
     constexpr UnsignedInteger128 operator / (const UnsignedInteger128& other) const {
         // Fallback implementation
         const UnsignedInteger128 dividend = *this;
@@ -422,6 +452,7 @@ struct UnsignedInteger128 {
         }
         return quotient;
     }
+#endif
 
     constexpr UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
         // Fallback implementation
