@@ -1,8 +1,10 @@
 #pragma once
 
+#include <bit>
 #include <cstddef>
 
 #include "MathBending/concepts/ScalarTypes.hpp"
+#include "MathBending/functions/BitReversal.hpp"
 
 namespace MathBending {
     template <FLT_TYPE flt, size_t base>
@@ -55,8 +57,13 @@ namespace MathBending {
             return vanDerCorput(iteration++);
         }
 
-        static flt vanDerCorput(uint64_t n) {
-
+        static flt vanDerCorput(const uint64_t n) {
+            if constexpr (sizeof(flt) == 4) {
+                const uint32_t reversed = reverse_bits_32(n);
+                return std::bit_cast<flt>(0x3f800000 | (reversed >> 9)) - 1.f;
+            }
+            const uint64_t reversed = reverse_bits_64(n);
+            return std::bit_cast<flt>(0x3ff0000000000000 | (reversed >> 12)) - 1.0;
         }
     };
 }
