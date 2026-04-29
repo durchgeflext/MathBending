@@ -53,6 +53,10 @@ namespace MathBending {
             }
         }
 
+        explicit VanDerCorputSequence(const VanDerCorputSequence &sequence) = default;
+
+        explicit VanDerCorputSequence(VanDerCorputSequence &&sequence) = default;
+
         flt operator() () {
             return vanDerCorput(iteration++);
         }
@@ -61,9 +65,10 @@ namespace MathBending {
             if constexpr (sizeof(flt) == 4) {
                 const uint32_t reversed = reverse_bits_32(n);
                 return std::bit_cast<flt>(0x3f800000 | (reversed >> 9)) - 1.f;
+            } else {
+                const uint64_t reversed = reverse_bits_64(n);
+                return std::bit_cast<flt>(0x3ff0000000000000 | (reversed >> 12)) - 1.0;
             }
-            const uint64_t reversed = reverse_bits_64(n);
-            return std::bit_cast<flt>(0x3ff0000000000000 | (reversed >> 12)) - 1.0;
         }
     };
 }
