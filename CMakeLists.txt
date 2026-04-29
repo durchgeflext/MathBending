@@ -6,11 +6,17 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # =======================
-# Header-only module: random
+# Header-only modules
 # =======================
+add_library(lib_linAlgeb INTERFACE)
 add_library(lib_random INTERFACE)
 add_library(lib_util INTERFACE)
 
+target_include_directories(lib_linAlgeb
+                           INTERFACE
+                           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+                           $<INSTALL_INTERFACE:include>
+)
 target_include_directories(lib_random
                            INTERFACE
                            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -22,7 +28,7 @@ target_include_directories(lib_util
                            $<INSTALL_INTERFACE:include>
 )
 
-
+target_compile_features(lib_linAlgeb INTERFACE cxx_std_23)
 target_compile_features(lib_random INTERFACE cxx_std_23)
 target_compile_features(lib_util INTERFACE cxx_std_23)
 
@@ -40,7 +46,7 @@ install(
 
 # Install interface targets
 install(
-        TARGETS lib_random lib_util
+        TARGETS lib_linAlgeb lib_random lib_util
         EXPORT MathBendingTargets
 )
 
