@@ -7,17 +7,11 @@
 namespace MathBending {
     template <FLT_TYPE flt, size_t base>
     class VanDerCorputSequence {
-        size_t start = 0;
-
-        struct State {
-            uint64_t nom = 0.0;
-            uint64_t denom = static_cast<flt>(base);
-        };
-        State state;
+        size_t iteration = 0;
 
         public:
         VanDerCorputSequence() = default;
-        explicit VanDerCorputSequence(const size_t start) : start(start) {
+        explicit VanDerCorputSequence(const size_t start) : iteration(start) {
             for (size_t i = 0; i < start; i++) {
                 this();
             }
@@ -28,14 +22,7 @@ namespace MathBending {
         explicit VanDerCorputSequence(VanDerCorputSequence &&sequence) = default;
 
         flt operator() () {
-            //TODO: Fix this
-            flt res = static_cast<flt>(state.nom) / static_cast<flt>(state.denom);
-            ++state.nom;
-            if (state.nom % base == 0) {
-                state.nom /= base;
-                state.denom *= base;
-            }
-            return res;
+            return vanDerCorput(iteration++);
         }
 
         static flt vanDerCorput(uint64_t n) {
@@ -50,5 +37,26 @@ namespace MathBending {
             return result;
         }
 
+    };
+
+    template<FLT_TYPE flt>
+    class VanDerCorputSequence<flt, 2> {
+        size_t iteration = 0;
+
+        public:
+        VanDerCorputSequence() = default;
+        explicit VanDerCorputSequence(const size_t start) : iteration(start) {
+            for (size_t i = 0; i < start; i++) {
+                this();
+            }
+        }
+
+        flt operator() () {
+            return vanDerCorput(iteration++);
+        }
+
+        static flt vanDerCorput(uint64_t n) {
+
+        }
     };
 }
