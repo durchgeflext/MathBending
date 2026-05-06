@@ -1,14 +1,14 @@
 #pragma once
 
+#include <array>
+#include <cstdarg>
 #include <cstddef>
-
-#include "Matrix.hpp"
 
 namespace MathBending {
     namespace detail {
-        template<typename T, size_t N_>
-        struct Matrix<T, N_, 1> {
-            std::array<T, N_> data;
+        template<typename T, size_t N_, size_t M_>
+        struct Matrix {
+            std::array<std::array<T, M_>, N_> data;
 
             explicit Matrix() = default;
             explicit Matrix(Matrix& mat) = default;
@@ -16,23 +16,25 @@ namespace MathBending {
             ~Matrix() = default;
 
             explicit Matrix(T value) {
-                for (size_t i = 0;i < N_; i++) {
-                    data[i] = value;
+                for (size_t i = 0; i < N_; i++) {
+                    for (size_t j = 0; j < M_; j++) {
+                        data[i][j] = value;
+                    }
                 }
             }
 
             explicit Matrix(T values...) {
-                static_assert(values <= N_);
+                static_assert(values <= N_ * M_);
                 std::va_list vals;
                 va_start(vals, values);
                 for (size_t i = 0; i < values; i++) {
-                    data[i] = va_arg(vals, T);
+                    data[i / N_][i % N_] = va_arg(vals, T);
                 }
                 va_end(vals);
             }
         };
     }
 
-    template<typename T, size_t N_>
-    using Vec = detail::Matrix<T,N_,1>;
+    template<typename T, size_t N_, size_t M_>
+    using Matrix = detail::Matrix<T, N_, M_>;
 }

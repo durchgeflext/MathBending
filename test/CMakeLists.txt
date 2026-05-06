@@ -6,6 +6,9 @@ target_link_libraries(test_128integer PRIVATE lib_util Catch2::Catch2WithMain)
 add_executable(test_bitShift bitShift_test.cpp)
 target_link_libraries(test_bitShift PRIVATE lib_random lib_util Catch2::Catch2WithMain)
 
+add_executable(test_linAlgeb linearAlgebra_test.cpp)
+target_link_libraries(test_linAlgeb PRIVATE lib_linAlgeb Catch2::Catch2WithMain)
+
 add_executable(test_random random_test.cpp)
 target_link_libraries(test_random PRIVATE lib_random Catch2::Catch2WithMain)
 
