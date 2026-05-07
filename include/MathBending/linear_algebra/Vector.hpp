@@ -30,6 +30,45 @@ namespace MathBending {
                 }
                 va_end(vals);
             }
+
+            explicit Matrix(const std::initializer_list<T>& values) {
+                static_assert(values == N_);
+                for (size_t i = 0; i < N_; i++) {
+                    data[i] = values[i];
+                }
+            }
+
+            //Arithmetic
+            //Add
+            Matrix operator + (const Matrix& other) const {
+                Matrix res;
+                for (size_t i = 0; i < N_; i++) {
+                    res[i] = data[i] + other.data[i];
+                }
+                return res;
+            }
+
+            //Sub
+            Matrix operator - (const Matrix& other) const {
+                Matrix res;
+                for (size_t i = 0; i < N_; i++) {
+                    res[i] = data[i] - other.data[i];
+                }
+                return res;
+            }
+
+            //scalarMul
+            Matrix operator * (const T& scalar) const {
+                Matrix res;
+                for (size_t i = 0; i < N_; i++) {
+                    res[i] = data[i] * scalar;
+                }
+                return res;
+            }
+
+            //dot
+            //cross
+
         };
     }
 

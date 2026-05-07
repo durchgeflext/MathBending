@@ -21,6 +21,39 @@ namespace MathBending {
 
             explicit Matrix(T x, T y) : x(x), y(y), z(0) {}
             explicit Matrix(T x, T y, T z) : x(x), y(y), z(z) {}
+
+            explicit Matrix(const std::initializer_list<T>& values) {
+                static_assert(values.size() == 3);
+                x = values[0];
+                y = values[1];
+                z = values[2];
+            }
+
+            explicit Matrix(const Vec2<T>& values) : x(values.x), y(values.y), z(0) {}
+
+            //Assignment operator
+            Matrix& operator=(const Matrix& other) {
+                data[0] = other.data[0];
+                data[1] = other.data[1];
+                data[2] = other.data[2];
+                return *this;
+            }
+
+            //Arithmetic
+            //Add
+            Matrix operator + (const Matrix& other) const {
+                return {x + other.x, y + other.y, z + other.z};
+            }
+
+            //Sub
+            Matrix operator - (const Matrix& other) const {
+                return {x - other.x, y - other.y, z - other.z};
+            }
+
+            //scalarMul
+            Matrix operator * (const T& scalar) const {
+                return {scalar * x, scalar * y, scalar * z};
+            }
         };
     }
     template<typename T>

@@ -19,7 +19,40 @@ namespace MathBending {
 
             explicit Matrix(T value) : data{value,value} {}
 
-            explicit Matrix(T x, T y) : x(x), y(y) {}
+            Matrix(T x, T y) : x(x), y(y) {}
+
+            Matrix(const std::initializer_list<T>& values) {
+                static_assert(values.size() == 2);
+                x = values[0];
+                y = values[1];
+            }
+
+            //Assignment operator
+            Matrix& operator=(const Matrix& other) {
+                data[0] = other.data[0];
+                data[1] = other.data[1];
+                return *this;
+            }
+
+
+            //Arithmetic
+            //Add
+            Matrix operator + (const Matrix& other) const {
+                return {x + other.x, y + other.y};
+            }
+
+            //Sub
+            Matrix operator - (const Matrix& other) const {
+                return {x - other.x, y - other.y};
+            }
+
+            //scalarMul
+            Matrix operator * (const T& scalar) const {
+                return {scalar * x, scalar * y};
+            }
+
+            //dot
+            //cross
         };
     }
     template<typename T>
