@@ -20,3 +20,8 @@ concept U_INT_TYPE =
     std::is_same_v<T, uint32_t> ||
     std::is_same_v<T, uint64_t> ||
     std::is_same_v<T, uint128_t>;
+
+template<typename T>
+concept FLT_TYPE =
+    std::is_same_v<T, float> ||
+    std::is_same_v<T, double>;
