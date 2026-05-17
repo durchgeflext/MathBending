@@ -3,7 +3,6 @@
 #include <cstddef>
 
 #include "MathBending/concepts/ScalarTypes.hpp"
-#include "MathBending/util/Integer128.hpp"
 
 template<U_INT_TYPE word_t, U_INT_TYPE sgmnt_t>
 static constexpr word_t sgmnt_bit_shift_l(const word_t word, const size_t shift) {

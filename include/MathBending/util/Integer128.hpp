@@ -15,16 +15,16 @@ struct Integer128 {
     uint64_t lo;
 
     public:
-    Integer128() : hi(0) , lo(0) {}
-    Integer128(const Integer128 &integer128) = default;
-    Integer128(Integer128 &&integer128) = default;
+    constexpr Integer128() : hi(0) , lo(0) {}
+    constexpr Integer128(const Integer128 &integer128) = default;
+    constexpr Integer128(Integer128 &&integer128) = default;
 
-    explicit constexpr Integer128(const int64_t value) {
+    constexpr Integer128(const int64_t value) {
         hi = (value < 0) ? int64_t{-1} : int64_t{0};
         lo = static_cast<uint64_t>(value);
     }
 
-    explicit constexpr Integer128(const int64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+    constexpr Integer128(const int64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
 
 
     // Copy assignment operator
@@ -245,6 +245,13 @@ struct Integer128 {
         --*this;
         return tmp;
     }
+
+
+    // Conversion Operators
+
+    explicit constexpr operator int64_t() const {
+        return static_cast<int64_t>(lo);
+    }
 };
 
 struct UnsignedInteger128 {
@@ -253,16 +260,16 @@ struct UnsignedInteger128 {
     uint64_t lo;
 
     public:
-    UnsignedInteger128() : hi(0), lo(0) {}
-    UnsignedInteger128(const UnsignedInteger128 &integer128) = default;
-    UnsignedInteger128(UnsignedInteger128 &&integer128) = default;
+    constexpr UnsignedInteger128() : hi(0), lo(0) {}
+    constexpr UnsignedInteger128(const UnsignedInteger128 &integer128) = default;
+    constexpr UnsignedInteger128(UnsignedInteger128 &&integer128) = default;
 
-    explicit constexpr UnsignedInteger128(const uint64_t value) {
+    constexpr UnsignedInteger128(const uint64_t value) {
         hi = 0;
         lo = value;
     }
 
-    explicit constexpr UnsignedInteger128(const uint64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
+    constexpr UnsignedInteger128(const uint64_t hi, const uint64_t lo) : hi(hi), lo(lo) {}
 
 
     // Copy assignment operator
@@ -273,7 +280,7 @@ struct UnsignedInteger128 {
     // Shift operators
 
     constexpr UnsignedInteger128 operator << (const uint64_t shift) const {
-        UnsignedInteger128 tmp{};
+        UnsignedInteger128 tmp;
 
         if (shift >= 64) {
             tmp.hi = lo << (shift - 64);
@@ -491,6 +498,13 @@ struct UnsignedInteger128 {
         const UnsignedInteger128 tmp = *this;
         --*this;
         return tmp;
+    }
+
+
+    // Conversion Operators
+
+    explicit constexpr operator uint64_t() const {
+        return lo;
     }
 };
 #endif
