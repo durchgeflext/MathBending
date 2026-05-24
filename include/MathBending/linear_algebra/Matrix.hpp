@@ -99,6 +99,15 @@ namespace MathBending {
             }
 
             //Det
+
+            //Access
+            T operator[](const size_t i, const size_t j) const {
+                return data[i][j];
+            }
+
+            T& operator[](const size_t i, const size_t j) {
+                return data[i][j];
+            }
         };
 
         //Scalar multiplication

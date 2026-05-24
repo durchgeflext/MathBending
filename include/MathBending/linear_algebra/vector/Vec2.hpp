@@ -52,7 +52,20 @@ namespace MathBending {
             }
 
             //dot
-            //cross
+            T dot(const Matrix& other) const {
+                return {x * other.x + y * other.y};
+            }
+
+            //TODO: Dummy for cross
+
+            //Access
+            T operator[](const size_t pos) const {
+                return data[pos];
+            }
+
+            T& operator[](const size_t pos) {
+                return data[pos];
+            }
         };
     }
     template<typename T>

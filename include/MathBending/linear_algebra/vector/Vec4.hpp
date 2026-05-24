@@ -58,6 +58,22 @@ namespace MathBending {
             Matrix operator * (const T& scalar) const {
                 return {scalar * x, scalar * y, scalar * z, scalar * w};
             }
+
+            //dot
+            T dot(const Matrix& other) const {
+                return {x * other.x + y * other.y + z * other.z + w * other.w};
+            }
+
+            //TODO: cross
+
+            //Access
+            T operator[](const size_t pos) const {
+                return data[pos];
+            }
+
+            T& operator[](const size_t pos) {
+                return data[pos];
+            }
         };
     }
     template<typename T>

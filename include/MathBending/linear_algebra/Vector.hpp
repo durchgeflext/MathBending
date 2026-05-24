@@ -67,8 +67,24 @@ namespace MathBending {
             }
 
             //dot
-            //cross
+            T dot(const Matrix& other) const {
+                T sum = 0;
+                for (size_t i = 0; i < N_; i++) {
+                    sum += data[i] * other.data[i];
+                }
+                return sum;
+            }
 
+            //TODO: cross
+
+            //Access
+            T operator [](const size_t pos) const {
+                return data[pos];
+            }
+
+            T& operator[](const size_t pos) {
+                return data[pos];
+            }
         };
     }
 
