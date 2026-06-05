@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 
 #include "Matrix.hpp"
@@ -75,8 +76,6 @@ namespace MathBending {
                 return sum;
             }
 
-            //TODO: cross
-
             //Access
             T operator [](const size_t pos) const {
                 return data[pos];
@@ -85,9 +84,37 @@ namespace MathBending {
             T& operator[](const size_t pos) {
                 return data[pos];
             }
+
+            // Other functions
+            T length() const {
+                T sum{0};
+                for (auto value : data) {
+                    sum += value * value;
+                }
+                return std::sqrt(sum);
+            }
+
+            Matrix get_normalized() const {
+                //TODO: Fast inverse square root?
+                return 1. / length() * *this;
+            }
+
+            void normalize() {
+                *this = 1. / length() * *this;
+            }
         };
     }
 
     template<typename T, size_t N_>
     using Vec = detail::Matrix<T,N_,1>;
+
+    template<typename T, size_t N_>
+    static T length(const Vec<T, N_>& vec) {
+        return vec.length();
+    }
+
+    template<typename T, size_t N_>
+    static Vec<T, N_> normalize(const Vec<T, N_>& vec) {
+        return vec.get_normalized();
+    }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "MathBending/linear_algebra/Matrix.hpp"
 
 namespace MathBending {
@@ -64,8 +66,6 @@ namespace MathBending {
                 return {x * other.x + y * other.y + z * other.z + w * other.w};
             }
 
-            //TODO: cross
-
             //Access
             T operator[](const size_t pos) const {
                 return data[pos];
@@ -74,8 +74,34 @@ namespace MathBending {
             T& operator[](const size_t pos) {
                 return data[pos];
             }
+
+            //TODO: Swizzling
+
+            // Other functions
+            T length() const {
+                return std::sqrt(x* x + y * y + z * z + w * w);
+            }
+
+            Matrix get_normalized() const {
+                //TODO: Fast inverse square root?
+                return 1. / length() * *this;
+            }
+
+            void normalize() {
+                *this = 1. / length() * *this;
+            }
         };
     }
     template<typename T>
     using Vec4 = detail::Matrix<T, 4, 1>;
+
+    template<typename T>
+    static T length(const Vec4<T>& vec) {
+        return vec.length();
+    }
+
+    template<typename T, size_t N_>
+    static Vec4<T> normalize(const Vec4<T>& vec) {
+        return vec.get_normalized();
+    }
 }

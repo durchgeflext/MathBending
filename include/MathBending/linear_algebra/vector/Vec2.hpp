@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "MathBending/linear_algebra/Matrix.hpp"
 
 namespace MathBending {
@@ -56,7 +58,10 @@ namespace MathBending {
                 return {x * other.x + y * other.y};
             }
 
-            //TODO: Dummy for cross
+            //"cross" Computes the area of the parallelogram spanned by this and other
+            T cross(const Matrix& other) const {
+                return x * other.y - y * other.x;
+            }
 
             //Access
             T operator[](const size_t pos) const {
@@ -66,8 +71,34 @@ namespace MathBending {
             T& operator[](const size_t pos) {
                 return data[pos];
             }
+
+            //TODO: Swizzling
+
+            // Other functions
+            T length() const {
+                return std::sqrt(x* x + y * y);
+            }
+
+            Matrix get_normalized() const {
+                //TODO: Fast inverse square root?
+                return 1. / length() * *this;
+            }
+
+            void normalize() {
+                *this = 1. / length() * *this;
+            }
         };
     }
     template<typename T>
     using Vec2 = detail::Matrix<T, 2, 1>;
+
+    template<typename T>
+    static T length(const Vec2<T>& vec) {
+        return vec.length();
+    }
+
+    template<typename T, size_t N_>
+    static Vec2<T> normalize(const Vec2<T>& vec) {
+        return vec.get_normalized();
+    }
 }
