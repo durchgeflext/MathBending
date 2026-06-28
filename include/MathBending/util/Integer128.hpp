@@ -461,6 +461,37 @@ struct UnsignedInteger128 {
     }
 #endif
 
+#if defined(_MSC_VER) && defined(_WIN64)
+    //TODO: FIX!
+    UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
+        UnsignedInteger128 res{0};
+        uint64_t remainder = 0;
+
+        unsigned long msbIDX;
+
+        if (!_BitScanReverse64(&msbIDX, other.hi)) {
+            remainder = this->hi % other.lo;
+            res.hi = this->hi / other.lo;
+            res.lo = _udiv128(remainder, this->lo, other.lo, &remainder);
+            return remainder;
+        }
+
+        const uint64_t shift = 64 - msbIDX;
+        const UnsignedInteger128 xHat = *this >> shift;
+        const uint64_t           yHat = (other >> shift).lo;
+        const uint64_t           qHat = _udiv128(xHat.hi, xHat.lo, yHat, &remainder);
+
+        res = UnsignedInteger128{qHat};
+        res = res << shift;
+
+        //Correction
+        while (true) { //Should have at most two iterations
+            if (res * other <= *this && (res + UnsignedInteger128{1}) * other > *this) return remainder;
+            if (res * other < *this) res = res + UnsignedInteger128{1};
+            if (res * other > *this) res = res - UnsignedInteger128{1};
+        }
+    }
+#else //fallback implementation
     constexpr UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
         // Fallback implementation
         const UnsignedInteger128 dividend = *this;
@@ -476,6 +507,7 @@ struct UnsignedInteger128 {
         }
         return remainder;
     }
+#endif
 
     constexpr UnsignedInteger128& operator ++ () {
         if (++lo == 0) ++hi;

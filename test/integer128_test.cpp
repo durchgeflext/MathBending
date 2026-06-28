@@ -216,7 +216,6 @@ TEST_CASE("UnsignedInteger128 basic arithmetic functions", "[UnsignedInteger128 
 
     REQUIRE((b % a) == b);
     REQUIRE((d % b) == UnsignedInteger128{5});
-    //TODO: Increment/Decrement
 }
 
 TEST_CASE("Integer128 increment and decrement functions", "[Integer128 increment/decrement]") {
