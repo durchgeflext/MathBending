@@ -90,6 +90,7 @@ namespace MathBending {
         }
 
         uint operator()() {
+            //TODO: Fix Segfaulting here
             if (current % (sizeof(uint128_t) / sizeof(uint)) == 0) {
                 //Update
                 const uint128_t a = linA(*static_cast<uint128_t*>(static_cast<void*>(state.data(current))));

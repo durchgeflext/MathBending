@@ -89,5 +89,6 @@ if (BUILD_TESTS)
 endif()
 
 if (BUILD_BENCHMARKS)
+  message(STATUS "Enabled benchmarking")
   add_subdirectory(benchmark)
 endif()
