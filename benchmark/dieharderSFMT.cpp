@@ -9,7 +9,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     if (fileout.rdstate() == std::ios_base::failbit) {
         std::cerr << "Opening the filestream failed. Is the path correct?" << std::endl;
     }
-    size_t samples = 1'000'000;
+    size_t samples = 1'000;
     if (argc == 2) {
         samples = std::stoi(argv[1]);
     }

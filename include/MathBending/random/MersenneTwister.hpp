@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 
 #include "MathBending/concepts/ScalarTypes.hpp"
 #include "MathBending/functions/BitShifts.hpp"
@@ -90,14 +91,30 @@ namespace MathBending {
         }
 
         uint operator()() {
-            //TODO: Fix Segfaulting here
+            //TODO: Fix to avoid memcpy
             if (current % (sizeof(uint128_t) / sizeof(uint)) == 0) {
                 //Update
+                /*
                 const uint128_t a = linA(*static_cast<uint128_t*>(static_cast<void*>(state.data(current))));
                 const uint128_t b = linB(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + POS_1))));
                 const uint128_t c = linC(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + stateSize() - 2))));
                 const uint128_t d = linD(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + stateSize() - 1))));
                 *static_cast<uint128_t*>(static_cast<void*>(state.data(current))) = a + b + c + d;
+                */
+                uint128_t a;
+                uint128_t b;
+                uint128_t c;
+                uint128_t d;
+                std::memcpy(&a, state.data(current), 16);
+                std::memcpy(&b, state.data(current + POS_1), 16);
+                std::memcpy(&c, state.data(current + stateSize() - 2), 16);
+                std::memcpy(&d, state.data(current + stateSize() - 1), 16);
+                a = linA(a);
+                b = linB(b);
+                c = linC(c);
+                d = linD(d);
+                const uint128_t result = a + b + c + d;
+                std::memcpy(state.data(current), &result, 16);
             }
             uint tmp = state[current];
             current = state.next(current);
