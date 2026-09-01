@@ -22,7 +22,7 @@ namespace MathBending {
                 }
             }
 
-            explicit Matrix(T values...) {
+            explicit Matrix(T values, ...) {
                 static_assert(values <= N_);
                 std::va_list vals;
                 va_start(vals, values);

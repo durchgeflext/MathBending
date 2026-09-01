@@ -34,7 +34,7 @@ namespace MathBending {
             }
 
             explicit Matrix(const Vec2<T>& values) : x(values.x), y(values.y), z(0), w(0) {}
-            explicit Matrix(const Vec3<T>& values) : x(values.x), y(values,y), z(values.z), w(0) {}
+            explicit Matrix(const Vec3<T>& values) : x(values.x), y(values.y), z(values.z), w(0) {}
 
             //Assignment operator
             Matrix& operator=(const Matrix& other) {
