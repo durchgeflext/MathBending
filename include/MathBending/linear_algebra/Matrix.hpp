@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cstdarg>
-#include <cstddef>
 
 namespace MathBending {
     namespace detail {
@@ -23,29 +23,21 @@ namespace MathBending {
                 }
             }
 
-            explicit Matrix(T values...) {
-                static_assert(values <= N_ * M_);
-                std::va_list vals;
-                va_start(vals, values);
-                for (size_t v = 0; v < values; v++) {
-                    data[v / N_][v % N_] = va_arg(vals, T);
-                }
-                va_end(vals);
-            }
-
             explicit Matrix(const std::initializer_list<T>& values) {
-                static_assert(values.size() == N_ * M_);
-                for (size_t v = 0; v < N_ * M_; v++) {
-                    data[v / N_][v % N_] = values[v];
+                //TODO: use contract_asset in c++26
+                assert(values.size() <= N_ * M_);
+                for (size_t v = 0; v < values.size(); v++) {
+                    data[v / N_][v % N_] = values.data()[v];
                 }
             }
 
             explicit Matrix(const std::initializer_list<std::initializer_list<T>>& values) {
-                static_assert(values.size() == N_);
-                static_assert(values[0].size() == M_);
-                for (size_t n = 0; n < N_; n++) {
-                    for (size_t m = 0; m < M_; m++) {
-                        data[n][m] = values[n][m];
+                //TODO: use contract_asset in c++26
+                assert(values.size() <= N_);
+                for (size_t n = 0; n < values.size(); n++) {
+                    assert(values.data()[n].size() <= M_);
+                    for (size_t m = 0; m < values.data()[n].size(); m++) {
+                        data[n][m] = values.data()[n].data()[m];
                     }
                 }
             }

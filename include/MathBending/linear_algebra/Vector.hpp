@@ -1,7 +1,7 @@
 #pragma once
 
+#include <cassert>
 #include <cmath>
-#include <cstddef>
 
 #include "Matrix.hpp"
 
@@ -22,20 +22,11 @@ namespace MathBending {
                 }
             }
 
-            explicit Matrix(T values, ...) {
-                static_assert(values <= N_);
-                std::va_list vals;
-                va_start(vals, values);
-                for (size_t i = 0; i < values; i++) {
-                    data[i] = va_arg(vals, T);
-                }
-                va_end(vals);
-            }
-
             explicit Matrix(const std::initializer_list<T>& values) {
-                static_assert(values == N_);
-                for (size_t i = 0; i < N_; i++) {
-                    data[i] = values[i];
+                //TODO: use contract_asset in c++26
+                assert(values.size() <= N_);
+                for (size_t i = 0; i < values.size(); i++) {
+                    data[i] = values.data()[i];
                 }
             }
 
