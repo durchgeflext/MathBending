@@ -428,7 +428,7 @@ struct UnsignedInteger128 {
             return res;
         }
 
-        const uint64_t shift = 64 - msbIDX;
+        const uint64_t shift = 64 - (msbIDX + 1);
         const UnsignedInteger128 xHat = *this >> shift;
         const uint64_t           yHat = (other >> shift).lo;
         const uint64_t           qHat = _udiv128(xHat.hi, xHat.lo, yHat, &remainder);
@@ -476,7 +476,7 @@ struct UnsignedInteger128 {
             return remainder;
         }
 
-        const uint64_t shift = 64 - msbIDX;
+        const uint64_t shift = 64 - (msbIDX + 1);
         const UnsignedInteger128 xHat = *this >> shift;
         const uint64_t           yHat = (other >> shift).lo;
         const uint64_t           qHat = _udiv128(xHat.hi, xHat.lo, yHat, &remainder);
