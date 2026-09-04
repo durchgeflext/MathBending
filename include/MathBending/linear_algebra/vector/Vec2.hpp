@@ -72,8 +72,6 @@ namespace MathBending {
                 return data[pos];
             }
 
-            //TODO: Swizzling
-
             // Other functions
             T length() const {
                 return std::sqrt(x* x + y * y);
