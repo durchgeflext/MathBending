@@ -7,7 +7,7 @@
 #include "MathBending/random/MersenneTwister.hpp"
 
 int main(int argc, char** argv) {
-    size_t samples = 1'000;
+    size_t samples = 5'000;
     if (argc >= 2) {
         samples = std::stoi(argv[1]);
     }
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     double elapsed =
         static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
     std::cout << std::setprecision(4) << "Generating " << std::to_string(samples)
-              << " random 32 bit numbers using std::mt19937 took " << std::to_string(elapsed) << "µs" << std::endl;
+              << " random 32 bit numbers using std::mt19937 took " << std::to_string(elapsed) << "ns" << std::endl;
 
     std::cout << "Sleeping..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     elapsed =
         static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
     std::cout << std::setprecision(4) << "Generating " << std::to_string(samples)
-              << " random 32 bit numbers using MathBending::SFMT took " << std::to_string(elapsed) << "µs" << std::endl;
+              << " random 32 bit numbers using MathBending::SFMT took " << std::to_string(elapsed) << "ns" << std::endl;
 
     std::cout << "Sleeping..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     elapsed =
         static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
     std::cout << std::setprecision(4) << "Generating " << std::to_string(samples)
-              << " random 64 bit numbers using std::mt19937 took " << std::to_string(elapsed) << "µs" << std::endl;
+              << " random 64 bit numbers using std::mt19937 took " << std::to_string(elapsed) << "ns" << std::endl;
 
     std::cout << "Sleeping..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(2));
