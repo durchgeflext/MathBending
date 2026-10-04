@@ -7,7 +7,7 @@
 #include "MathBending/random/MersenneTwister.hpp"
 
 int main(int argc, char** argv) {
-    size_t samples = 5'000;
+    size_t samples = 10'000;
     if (argc >= 2) {
         samples = std::stoi(argv[1]);
     }
