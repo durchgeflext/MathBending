@@ -30,7 +30,7 @@ namespace MathBending {
 
         static constexpr uint128_t linB(const uint128_t word) {
             auto result = sgmnt_bit_shift_r<uint128_t, uint32_t>(word, 11);
-            result &= static_cast<uint128_t>(0xBFFFFFF6'BFFAFFFF) << 64 | static_cast<uint128_t>(0xDDFECB7F'DFFFFFEF);
+            result = result & static_cast<uint128_t>(0xBFFFFFF6'BFFAFFFF) << 64 | static_cast<uint128_t>(0xDDFECB7F'DFFFFFEF);
             return result;
         }
 
@@ -90,7 +90,7 @@ namespace MathBending {
 
             //Fill other values
             for (size_t i = 1; i < N; i++) {
-                state128[i] = INIT_MUL_64 * (state128[i -1] ^ state128[i - 1] >> 126) + i;
+                state128[i] = static_cast<uint128_t>(INIT_MUL_64) * (state128[i -1] ^ state128[i - 1] >> 126) + i;
             }
 
             // Generate state array

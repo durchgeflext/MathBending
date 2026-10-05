@@ -7,7 +7,7 @@
 #include "MathBending/random/MersenneTwister.hpp"
 
 int main(int argc, char** argv) {
-    size_t samples = 10'000;
+    size_t samples = 1'000;
     if (argc >= 2) {
         samples = std::stoi(argv[1]);
     }
@@ -15,12 +15,12 @@ int main(int argc, char** argv) {
     MathBending::SIMDFastMersenneTwister<uint32_t> sfmt_32;
 
     //------------------32 bit std::mt19937----------------------
-    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
     uint32_t sum32 = 0;
     for (size_t i = 0; i < samples; i++) {
         sum32 += stdMT_32();
     }
-    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
     double elapsed =
         static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
     std::cout << std::setprecision(4) << "Generating " << std::to_string(samples)
