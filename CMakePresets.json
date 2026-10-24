@@ -37,7 +37,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTS": "OFF",
         "ENABLE_COVERAGE": "OFF",
-        "BUILD_BENCHMARKS": "OFF"
+        "BUILD_BENCHMARKS": "ON"
       }
     },
     {
