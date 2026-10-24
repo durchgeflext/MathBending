@@ -114,8 +114,9 @@ namespace MathBending {
             uint result;
             const size_t wordIdx = current / DATA_IN_WORD;
             const size_t dataIdx = current % DATA_IN_WORD;
-            const char* p = reinterpret_cast<char*>(state.data(current / wordIdx)) + dataIdx * sizeof(uint);
+            const char* p = reinterpret_cast<char*>(state.data(wordIdx)) + dataIdx * sizeof(uint);
             std::memcpy(&result, p, sizeof(uint));
+            current++;
             return result;
         }
 
