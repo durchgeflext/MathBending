@@ -1,11 +1,14 @@
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include "MathBending/random.hpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
-    //TODO: Remove magic string
-    std::fstream fileout("../../../benchmark/files/sfmt.dat", std::ios_base::out | std::ios_base::binary);
+    const std::filesystem::path outPath
+                = std::filesystem::path(MATHBENDING_PROJECT_ROOT) / "benchmark" / "files" / "sfmt.dat";
+    std::fstream fileout(outPath, std::ios_base::out | std::ios_base::binary);
     if (fileout.rdstate() == std::ios_base::failbit) {
         std::cerr << "Opening the filestream failed. Is the path correct?" << std::endl;
     }

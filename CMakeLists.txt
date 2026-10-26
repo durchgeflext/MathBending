@@ -4,6 +4,7 @@ project(MathBending VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(MB_PR_DEF "MATHBENDING_PROJECT_ROOT=\"${PROJECT_SOURCE_DIR}\"")
 
 # =======================
 # Header-only module: random
