@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 
 #include "MathBending/concepts/ScalarTypes.hpp"
 #include "MathBending/functions/BitShifts.hpp"
@@ -19,9 +20,8 @@ namespace MathBending {
 
         static constexpr size_t POS_1 = 122;
 
-        static constexpr size_t stateSize() {
-            return sizeof(uint128_t) / sizeof(uint) * N;
-        }
+        static constexpr size_t DATA_IN_WORD = sizeof(uint128_t) / sizeof(uint);
+        static constexpr size_t STATE_SIZE = DATA_IN_WORD * N;
 
         //TODO: Check Endianess for consistency
         static constexpr uint128_t linA(const uint128_t word) {
@@ -30,7 +30,7 @@ namespace MathBending {
 
         static constexpr uint128_t linB(const uint128_t word) {
             auto result = sgmnt_bit_shift_r<uint128_t, uint32_t>(word, 11);
-            result &= static_cast<uint128_t>(0xBFFFFFF6'BFFAFFFF) << 64 | static_cast<uint128_t>(0xDDFECB7F'DFFFFFEF);
+            result = result & static_cast<uint128_t>(0xBFFFFFF6'BFFAFFFF) << 64 | static_cast<uint128_t>(0xDDFECB7F'DFFFFFEF);
             return result;
         }
 
@@ -42,9 +42,25 @@ namespace MathBending {
             return sgmnt_bit_shift_l<uint128_t, uint32_t>(word, 18);
         }
 
-        CircularArray<uint, stateSize()> state;
+        CircularArray<uint128_t, N> state;
         size_t current = 0;
         uint seed;
+
+        void regenerate_state() {
+            for (size_t i = 0; i < N; i++) {
+                uint128_t a = state[i];
+                uint128_t b = state[i + POS_1];
+                uint128_t c = state[i + STATE_SIZE - 2];
+                uint128_t d = state[i + STATE_SIZE - 1];
+
+                a = linA(a);
+                b = linB(b);
+                c = linC(c);
+                d = linD(d);
+
+                state[i] = a + b + c + d;
+            }
+        }
 
         void init_state() {
             uint32_t init32 = seed;
@@ -74,9 +90,11 @@ namespace MathBending {
 
             //Fill other values
             for (size_t i = 1; i < N; i++) {
-                state128[i] = INIT_MUL_64 * (state128[i -1] ^ state128[i - 1] >> 126) + i;
+                state128[i] = static_cast<uint128_t>(INIT_MUL_64) * (state128[i -1] ^ state128[i - 1] >> 126) + i;
             }
 
+            // Generate state array
+            regenerate_state();
         }
 
         public:
@@ -90,17 +108,16 @@ namespace MathBending {
         }
 
         uint operator()() {
-            if (current % (sizeof(uint128_t) / sizeof(uint)) == 0) {
-                //Update
-                const uint128_t a = linA(*static_cast<uint128_t*>(static_cast<void*>(state.data(current))));
-                const uint128_t b = linB(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + POS_1))));
-                const uint128_t c = linC(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + stateSize() - 2))));
-                const uint128_t d = linD(*static_cast<uint128_t*>(static_cast<void*>(state.data(current + stateSize() - 1))));
-                *static_cast<uint128_t*>(static_cast<void*>(state.data(current))) = a + b + c + d;
+            if (current == STATE_SIZE) {
+                regenerate_state();
             }
-            uint tmp = state[current];
-            current = state.next(current);
-            return tmp;
+            uint result;
+            const size_t wordIdx = current / DATA_IN_WORD;
+            const size_t dataIdx = current % DATA_IN_WORD;
+            const char* p = reinterpret_cast<char*>(state.data(wordIdx)) + dataIdx * sizeof(uint);
+            std::memcpy(&result, p, sizeof(uint));
+            current++;
+            return result;
         }
 
         uint getSeed() const {

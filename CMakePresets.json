@@ -37,7 +37,33 @@
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTS": "OFF",
         "ENABLE_COVERAGE": "OFF",
-        "BUILD_BENCHMARKS": "OFF"
+        "BUILD_BENCHMARKS": "ON"
+      }
+    },
+    {
+      "name": "Benchmark",
+      "displayName": "Benchmark",
+      "description": "Release with Debug Info build with test disabled and benchmarking enabled",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build-bench",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "BUILD_TESTS": "OFF",
+        "ENABLE_COVERAGE": "OFF",
+        "BUILD_BENCHMARKS": "ON"
+      }
+    },
+    {
+      "name": "BenchmarkDebug",
+      "displayName": "BenchmarkDebug",
+      "description": "Debug with tests disabled and benchmarking enabled",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build-bench-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTS": "OFF",
+        "ENABLE_COVERAGE": "OFF",
+        "BUILD_BENCHMARKS": "ON"
       }
     }
   ]

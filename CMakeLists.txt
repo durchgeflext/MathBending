@@ -4,6 +4,7 @@ project(MathBending VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(MB_PR_DEF "MATHBENDING_PROJECT_ROOT=\"${PROJECT_SOURCE_DIR}\"")
 
 # =======================
 # Header-only modules
@@ -74,12 +75,8 @@ if (BUILD_TESTS)
       add_compile_options(--coverage -O0 -g)
       add_compile_options(-fno-elide-constructors)
       add_link_options(--coverage)
-    elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-      add_compile_options(/PROFILE)
-      add_link_options(/PROFILE)
-      message(STATUS "Code coverage enabled for MSVC with /PROFILE flag")
     else()
-      message(WARNING "Code coverage is only supported for GCC, Clang, and MSVC")
+      message(WARNING "Code coverage is only supported for GCC and Clang")
     endif()
   endif()
   include(FetchContent)
@@ -95,5 +92,6 @@ if (BUILD_TESTS)
 endif()
 
 if (BUILD_BENCHMARKS)
+  message(STATUS "Enabled benchmarking")
   add_subdirectory(benchmark)
 endif()

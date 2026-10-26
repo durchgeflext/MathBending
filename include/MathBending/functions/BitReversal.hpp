@@ -36,6 +36,18 @@ static constexpr uint64_t reverse_bits_64(uint64_t word) {
 }
 
 static constexpr uint128_t reverse_bits_128(uint128_t word) {
-    //TODO: Implement
-    return 0;
+    word = word << 64 | word >> 64;
+    word = (word & (uint128_t{0x00000000ffffffff} << 64) | uint128_t{0x00000000ffffffff}) << 32 |
+           (word & (uint128_t{0xffffffff00000000} << 64) | uint128_t{0xffffffff00000000}) >> 32;
+    word = (word & (uint128_t{0x0000ffff0000ffff} << 64) | uint128_t{0x0000ffff0000ffff}) << 16 |
+           (word & (uint128_t{0xffff0000ffff0000} << 64) | uint128_t{0xffff0000ffff0000}) >> 16;
+    word = (word & (uint128_t{0x00ff00ff00ff00ff} << 64) | uint128_t{0x00ff00ff00ff00ff}) << 8 |
+           (word & (uint128_t{0xff00ff00ff00ff00} << 64) | uint128_t{0xff00ff00ff00ff00}) >> 8;
+    word = (word & (uint128_t{0x0f0f0f0f0f0f0f0f} << 64) | uint128_t{0x0f0f0f0f0f0f0f0f}) >> 4 |
+           (word & (uint128_t{0xf0f0f0f0f0f0f0f0} << 64) | uint128_t{0xf0f0f0f0f0f0f0f0}) << 4;
+    word = (word & (uint128_t{0x3333333333333333} << 64) | uint128_t{0x3333333333333333}) >> 4 |
+           (word & (uint128_t{0xcccccccccccccccc} << 64) | uint128_t{0xcccccccccccccccc}) << 4;
+    word = (word & (uint128_t{0x5555555555555555} << 64) | uint128_t{0x5555555555555555}) >> 4 |
+           (word & (uint128_t{0xaaaaaaaaaaaaaaaa} << 64) | uint128_t{0xaaaaaaaaaaaaaaaa}) << 4;
+    return word;
 }

@@ -10,7 +10,7 @@ add_executable(test_linAlgeb linearAlgebra_test.cpp)
 target_link_libraries(test_linAlgeb PRIVATE lib_linAlgeb Catch2::Catch2WithMain)
 
 add_executable(test_random random_test.cpp)
-target_link_libraries(test_random PRIVATE lib_random Catch2::Catch2WithMain)
+target_link_libraries(test_random PRIVATE lib_random)
 
 add_executable(test_vdcSeq vanDerCorput_test.cpp)
 target_link_libraries(test_vdcSeq PRIVATE lib_random)
@@ -18,4 +18,3 @@ target_link_libraries(test_vdcSeq PRIVATE lib_random)
 # Register tests with CTest for CLion discovery
 catch_discover_tests(test_128integer)
 catch_discover_tests(test_bitShift)
-catch_discover_tests(test_random)

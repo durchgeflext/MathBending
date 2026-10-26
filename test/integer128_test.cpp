@@ -167,6 +167,7 @@ TEST_CASE("UnsignedInteger128 basic comparison functions", "[UnsignedInteger128 
     REQUIRE(a >= d);
 }
 
+//TODO: write arithmetic tests with random numbers and compare * and / and % with the fallback implementation, that is definitely correct
 TEST_CASE("Integer128 basic arithmetic functions", "[Integer128 arithmetic]") {
     const Integer128 a{static_cast<int64_t>(0xffffffffffffffff), 0xfffffffffffffffe};
     const Integer128 b{0x0000000000000000, 0x000000000000000a};
@@ -195,6 +196,7 @@ TEST_CASE("UnsignedInteger128 basic arithmetic functions", "[UnsignedInteger128 
     const UnsignedInteger128 b{0x0000000000000000, 0x000000000000000a};
     const UnsignedInteger128 c{0x0000000000000000, 0x0000000000000002};
     const UnsignedInteger128 d{0x0000000000000000, 0x000000000000000f};
+    const UnsignedInteger128 e{0x000000000000000a, 0x000000000000000a};
     const UnsignedInteger128 z{0};
 
     REQUIRE((b + c) == UnsignedInteger128{0x0000000000000000, 0x000000000000000c});
@@ -213,10 +215,11 @@ TEST_CASE("UnsignedInteger128 basic arithmetic functions", "[UnsignedInteger128 
 
     REQUIRE((b / c) == UnsignedInteger128{0x0000000000000000, 0x0000000000000005});
     REQUIRE((b / a) == UnsignedInteger128{0});
+    REQUIRE((e / c) == UnsignedInteger128{0x0000000000000005, 0x0000000000000005});
 
     REQUIRE((b % a) == b);
     REQUIRE((d % b) == UnsignedInteger128{5});
-    //TODO: Increment/Decrement
+    REQUIRE((a % e) == UnsignedInteger128{0x0000000000000005, 0x0000000000000004});
 }
 
 TEST_CASE("Integer128 increment and decrement functions", "[Integer128 increment/decrement]") {
