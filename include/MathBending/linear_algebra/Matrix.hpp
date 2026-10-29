@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <initializer_list>
 #include <vector>
 
 namespace MathBending {
@@ -27,7 +28,7 @@ namespace MathBending {
                 //TODO: use contract_assert in c++26
                 assert(values.size() <= N_ * M_);
                 for (size_t v = 0; v < values.size(); v++) {
-                    data[v / N_][v % N_] = values.data()[v];
+                    data[v / N_][v % N_] = values.begin()[v];
                 }
             }
 
@@ -35,9 +36,9 @@ namespace MathBending {
                 //TODO: use contract_assert in c++26
                 assert(values.size() <= N_);
                 for (size_t n = 0; n < values.size(); n++) {
-                    assert(values.data()[n].size() <= M_);
-                    for (size_t m = 0; m < values.data()[n].size(); m++) {
-                        data[n][m] = values.data()[n].data()[m];
+                    assert(values.begin()[n].size() <= M_);
+                    for (size_t m = 0; m < values.begin()[n].size(); m++) {
+                        data[n][m] = values.begin()[n].begin()[m];
                     }
                 }
             }
@@ -46,7 +47,7 @@ namespace MathBending {
                 //TODO: Use contract_assert in c++26
                 assert(values.size() <= N_ + M_);
                 for (size_t v = 0; v < values.size(); v++) {
-                    data[v / N_][v % N_] = values.data()[v];
+                    data[v / N_][v % N_] = values.begin()[v];
                 }
             }
 
@@ -55,8 +56,8 @@ namespace MathBending {
                 assert(values.size() <= N_);
                 for (size_t n = 0; n < values.size(); n++) {
                     assert(values.data()[n].size() <= M_);
-                    for (size_t m = 0; m < values.data()[n].size(); m++) {
-                        data[n][m] = values.data()[n].data()[m];
+                    for (size_t m = 0; m < values.begin()[n].size(); m++) {
+                        data[n][m] = values.begin()[n].begin()[m];
                     }
                 }
             }
@@ -168,6 +169,15 @@ namespace MathBending {
             T& operator[](const size_t i, const size_t j) {
                 return data[i][j];
             }
+
+            const std::array<T, M_>& operator[](const size_t i) const {
+                return data[i];
+            }
+
+            std::array<T, M_>& operator[](const size_t j) {
+                return data[j];
+            }
+
 
             // Removes row i and col j from the matrix
             Matrix<T, N_ - 1, M_ - 1> subMatrix(size_t i, size_t j) const {

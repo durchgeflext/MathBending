@@ -26,7 +26,7 @@ namespace MathBending {
                 //TODO: use contract_asset in c++26
                 assert(values.size() <= N_);
                 for (size_t i = 0; i < values.size(); i++) {
-                    data[i] = values.data()[i];
+                    data[i] = values.begin()[i];
                 }
             }
 
