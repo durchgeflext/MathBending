@@ -53,6 +53,11 @@ struct Integer128 {
         return tmp;
     }
 
+    constexpr Integer128& operator <<= (const uint64_t shift) {
+        *this = *this << shift;
+        return *this;
+    }
+
     constexpr Integer128 operator >> (const uint64_t shift) const {
         Integer128 tmp{};
 
@@ -72,18 +77,39 @@ struct Integer128 {
         return tmp;
     }
 
-    // Logic operators
+    constexpr Integer128& operator >>= (const uint64_t shift) {
+        *this = *this >> shift;
+        return *this;
+    }
+
+
+    // Arithmetic logic operators
 
     constexpr Integer128 operator & (const Integer128& other) const {
         return Integer128{hi & other.hi, lo & other.lo};
+    }
+
+    constexpr Integer128& operator &= (const Integer128& other) {
+        *this = *this & other;
+        return *this;
     }
 
     constexpr Integer128 operator | (const Integer128& other) const {
         return Integer128{hi | other.hi, lo | other.lo};
     }
 
+    constexpr Integer128& operator |= (const Integer128& other) {
+        *this = *this | other;
+        return *this;
+    }
+
     constexpr Integer128 operator ^ (const Integer128& other) const {
         return Integer128{hi ^ other.hi, lo ^ other.lo};
+    }
+
+    constexpr Integer128& operator ^= (const Integer128& other) {
+        *this = *this ^ other;
+        return *this;
     }
 
     constexpr Integer128 operator ~ () const {
@@ -91,7 +117,7 @@ struct Integer128 {
     }
 
 
-    // Comparison operator
+    // Comparison operators
 
     constexpr bool operator == (const Integer128& other) const {
         if (hi != other.hi) return false;
@@ -122,8 +148,14 @@ struct Integer128 {
         return (*this > other) || (*this == other);
     }
 
+    constexpr std::strong_ordering operator <=> (const Integer128& other) const = default;
+
 
     // Arithmetic Operators
+
+    constexpr Integer128 operator + () const {
+        return *this;
+    }
 
     constexpr Integer128 operator + (const Integer128& other) const {
         Integer128 res{0};
@@ -131,6 +163,15 @@ struct Integer128 {
         const uint64_t carry = (res.lo < this->lo) ? 1 : 0;
         res.hi = this->hi + other.hi + static_cast<int64_t>(carry);
         return res;
+    }
+
+    constexpr Integer128& operator += (const Integer128& other) {
+        *this = *this + other;
+        return *this;
+    }
+
+    constexpr Integer128 operator - () const {
+        return Integer128{~hi, ~lo} + Integer128{0, 1};
     }
 
     constexpr Integer128 operator - (const Integer128& other) const {
@@ -141,8 +182,9 @@ struct Integer128 {
         return res;
     }
 
-    constexpr Integer128 operator - () const {
-        return Integer128{~hi, ~lo} + Integer128{0, 1};
+    constexpr Integer128& operator -= (const Integer128& other) {
+        *this = *this - other;
+        return *this;
     }
 
 #if defined(_MSC_VER) && defined(_WIN64)
@@ -173,6 +215,10 @@ struct Integer128 {
         return res;
     }
 #endif
+    constexpr Integer128& operator *= (const Integer128& other) {
+        *this = *this * other;
+        return *this;
+    }
 
 #if defined(_MSC_VER) && defined(_WIN64)
    Integer128 operator / (const Integer128& other) const {
@@ -261,11 +307,23 @@ struct Integer128 {
         return resultNegative ? -quotient : quotient;
     }
 #endif
+    constexpr Integer128& operator /= (const Integer128& other) {
+        *this = *this / other;
+        return *this;
+    }
 
     constexpr Integer128 operator % (const Integer128& other) const {
         const Integer128 res = *this / other;
         return *this - (res * other);
     }
+
+    constexpr Integer128& operator %= (const Integer128& other) {
+        *this = *this % other;
+        return *this;
+    }
+
+
+    // Increment/Decrement operators
 
     constexpr Integer128& operator ++ () {
         if (++lo == 0) ++hi;
@@ -342,6 +400,11 @@ struct UnsignedInteger128 {
         return tmp;
     }
 
+    constexpr UnsignedInteger128& operator <<= (const uint64_t shift) {
+        *this = *this << shift;
+        return *this;
+    }
+
     constexpr UnsignedInteger128 operator >> (const uint64_t shift) const {
         UnsignedInteger128 tmp{};
 
@@ -361,19 +424,39 @@ struct UnsignedInteger128 {
         return tmp;
     }
 
+    constexpr UnsignedInteger128& operator >>= (const uint64_t shift) {
+        *this = *this >> shift;
+        return *this;
+    }
 
-    // Logic operators
+
+    // Arithmetic logic operators
 
     constexpr UnsignedInteger128 operator & (const UnsignedInteger128& other) const {
         return UnsignedInteger128{hi & other.hi, lo & other.lo};
+    }
+
+    constexpr UnsignedInteger128& operator &= (const UnsignedInteger128& other) {
+        *this = *this & other;
+        return *this;
     }
 
     constexpr UnsignedInteger128 operator | (const UnsignedInteger128& other) const {
         return UnsignedInteger128{hi | other.hi, lo | other.lo};
     }
 
+    constexpr UnsignedInteger128& operator |= (const UnsignedInteger128& other) {
+        *this = *this | other;
+        return *this;
+    }
+
     constexpr UnsignedInteger128 operator ^ (const UnsignedInteger128& other) const {
         return UnsignedInteger128{hi ^ other.hi, lo ^ other.lo};
+    }
+
+    constexpr UnsignedInteger128& operator ^= (const UnsignedInteger128& other) {
+        *this = *this ^ other;
+        return *this;
     }
 
     constexpr UnsignedInteger128 operator ~ () const {
@@ -381,7 +464,7 @@ struct UnsignedInteger128 {
     }
 
 
-    // Comparison operator
+    // Comparison operators
 
     constexpr bool operator == (const UnsignedInteger128& other) const {
         if (hi != other.hi) return false;
@@ -412,8 +495,14 @@ struct UnsignedInteger128 {
         return (*this > other) || (*this == other);
     }
 
+    constexpr std::strong_ordering operator <=> (const UnsignedInteger128& other) const = default;
+
 
     // Arithmetic Operators
+
+    constexpr UnsignedInteger128 operator + () const {
+        return *this;
+    }
 
     constexpr UnsignedInteger128 operator + (const UnsignedInteger128& other) const {
         UnsignedInteger128 res{0};
@@ -423,12 +512,26 @@ struct UnsignedInteger128 {
         return res;
     }
 
+    constexpr UnsignedInteger128& operator += (const UnsignedInteger128& other) {
+        *this = *this + other;
+        return *this;
+    }
+
+    constexpr UnsignedInteger128 operator - () const {
+        return ~(*this - 1);
+    }
+
     constexpr UnsignedInteger128 operator - (const UnsignedInteger128& other) const {
         UnsignedInteger128 res{0};
         const uint64_t borrow = (this->lo < other.lo) ? 1 : 0;
         res.lo = this->lo - other.lo;
         res.hi = this->hi - other.hi - static_cast<int64_t>(borrow);
         return res;
+    }
+
+    constexpr UnsignedInteger128& operator -= (const UnsignedInteger128& other) {
+        *this = *this - other;
+        return *this;
     }
 
 #if defined(_MSC_VER) && defined(_WIN64)
@@ -457,6 +560,10 @@ struct UnsignedInteger128 {
     }
 
 #endif
+    constexpr UnsignedInteger128& operator *= (const UnsignedInteger128& other) {
+        *this = *this * other;
+        return *this;
+    }
 
 #if defined(_MSC_VER) && defined(_WIN64)
     UnsignedInteger128 operator / (const UnsignedInteger128& other) const {
@@ -503,11 +610,22 @@ struct UnsignedInteger128 {
         return quotient;
     }
 #endif
+    constexpr UnsignedInteger128& operator /= (const UnsignedInteger128& other) {
+        *this = *this / other;
+        return *this;
+    }
 
-    UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
+    constexpr UnsignedInteger128 operator % (const UnsignedInteger128& other) const {
         const UnsignedInteger128 div = *this / other;
         return *this - (div * other);
     }
+
+    constexpr UnsignedInteger128 operator %= (const UnsignedInteger128& other) {
+        *this = *this % other;
+        return *this;
+    }
+
+    // Increment/Decrement operators
 
     constexpr UnsignedInteger128& operator ++ () {
         if (++lo == 0) ++hi;

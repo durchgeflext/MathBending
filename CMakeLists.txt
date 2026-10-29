@@ -27,6 +27,34 @@ target_include_directories(lib_util
 target_compile_features(lib_random INTERFACE cxx_std_23)
 target_compile_features(lib_util INTERFACE cxx_std_23)
 
+# ======================
+# Compiler Flags
+# ======================
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(lib_random INTERFACE -march=native)
+  target_compile_options(lib_util INTERFACE -march=native)
+  message(STATUS "Enabled native cpu instructions")
+elseif(MSVC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  include(CheckCXXSourceRuns)
+  check_cxx_source_runs(
+      [=[
+      #include <windows.h>
+
+      #ifndef PF_AVX2_INSTRUCTIONS_AVAILABLE
+      #define PF_AVX2_INSTRUCTIONS_AVAILABLE 40
+      #endif
+
+      int main() {
+        return IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE) ? 0 : 1;
+      }
+      ]=] MATHBENDING_HOST_HAS_AVX2
+  )
+  if(MATHBENDING_HOST_HAS_AVX2)
+    target_compile_options(lib_random INTERFACE /arch:AVX2)
+    target_compile_options(lib_util INTERFACE /arch:AVX2)
+  endif()
+endif()
+
 
 # =======================
 # Installation
