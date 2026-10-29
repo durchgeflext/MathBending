@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
         static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1'000;
     std::cout << std::fixed << std::setprecision(3) << "Generating " << samples
               << " random 32 bit numbers using std::mt19937 took " << elapsed << " ms" << std::endl;
+    std::cout << "Hash: " << sum32 << std::endl;
 
     std::cout << "Sleeping..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -43,6 +44,7 @@ int main(int argc, char** argv) {
         static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1'000;
     std::cout << std::fixed << std::setprecision(3) << "Generating " << samples
               << " random 32 bit numbers using MathBending::SFMT took " << elapsed << " ms" << std::endl;
+    std::cout << "Hash: " << sum32 << std::endl;
 
 
     std::mt19937_64 stdMT_64;
@@ -62,6 +64,7 @@ int main(int argc, char** argv) {
         static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1'000;
     std::cout << std::fixed << std::setprecision(3) << "Generating " << samples
               << " random 64 bit numbers using std::mt19937 took " << elapsed << " ms" << std::endl;
+    std::cout << "Hash: " << sum64 << std::endl;
 
     std::cout << "Sleeping..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -77,4 +80,5 @@ int main(int argc, char** argv) {
         static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1'000;
     std::cout << std::fixed << std::setprecision(3) << "Generating " << samples
               << " random 64 bit numbers using MathBending::SFMT took " << elapsed << " ms" << std::endl;
+    std::cout << "Hash: " << sum64 << std::endl;
 }
